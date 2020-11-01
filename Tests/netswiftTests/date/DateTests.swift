@@ -355,8 +355,8 @@ class Date_Tests: XCTestCase {
         let dt5 = DateTime(year: 2015, month: 6, day: 12, hour: 13, minute: 22, kind: .Utc, weekStarts: .Monday)
         XCTAssertTrue(dt1.Equals(dt2))
         XCTAssertFalse(dt1.Equals(dt3))
-        XCTAssertTrue(dt1.Equals(dt5))
         XCTAssertFalse(dt1.Equals(dt4))
+        XCTAssertFalse(dt1.Equals(dt5))
     }
     
     func test_ParseValid() {
@@ -402,10 +402,10 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt.ToString(.LongDate), "01. December, 1999.")
         XCTAssertEqual(dt.ToString(.MediumDate), "01. Dec, 1999.")
         XCTAssertEqual(dt.ToString(.MediumDateA), "Dec 01, 1999.")
-        XCTAssertEqual(dt.ToString(.MediumTime), "3:44:23p.m.")
+        XCTAssertEqual(dt.ToString(.MediumTime), "3:44:23 PM")
         XCTAssertEqual(dt.ToString(.MediumTimeM), "15:44:23")
         XCTAssertEqual(dt.ToString(.ShortDate), "01/12/99")
-        XCTAssertEqual(dt.ToString(.ShortTime), "3:44p.m.")
+        XCTAssertEqual(dt.ToString(.ShortTime), "3:44 PM")
         XCTAssertEqual(dt.ToString(.ShortTimeM), "15:44")
     }
     
@@ -413,22 +413,31 @@ class Date_Tests: XCTestCase {
         let dt = DateTime(year: 1999, month: 12, day: 1, hour: 15, minute: 44, second: 23, millisecond: 500, kind: .Local, weekStarts: .Monday)
         XCTAssertEqual(dt.ToString(), "1999-12-01 15:44:23.500")
     }
-    
-    func test_ToStringCustom() {
+
+    // This test only succeeds if runs in Central Time (CST/CDT)
+    func test_ToStringCustom1() {
         let dt = DateTime(year: 1999, month: 12, day: 1, hour: 15, minute: 44, second: 23, millisecond: 500, kind: .Local, weekStarts: .Monday)
-        XCTAssertEqual(dt.ToString("EEE, yyyy/MM/dd hh:mm:ss zzz"), "Wed, 1999/12/01 03:44:23 GMT")
+        XCTAssertEqual(dt.ToString("EEE, yyyy/MM/dd hh:mm:ss a zzz"), "Wed, 1999/12/01 03:44:23 PM CST")
     }
-    
+
+    // This test only succeeds if runs in Central Time (CST/CDT)
+    func test_ToStringCustom2() {
+        let dt = DateTime(year: 2020, month: 6, day: 15, hour: 1, minute: 44, second: 23, millisecond: 500, kind: .Local, weekStarts: .Monday)
+        XCTAssertEqual(dt.ToString("EEE, yyyy/MM/dd hh:mm:ss a zzz"), "Mon, 2020/06/15 01:44:23 AM CDT")
+    }
+
+    // This test only succeeds if runs in Central Time (CST/CDT)
     func test_ToUtc() {
         let local = DateTime(year: 2001, month: 05, day: 7, hour: 14, minute: 44, second: 23, kind: .Local, weekStarts: .Monday)
         let utc = local.ToUtc()
-        XCTAssertEqual(local.Hour, utc.Hour + 1)
+        XCTAssertEqual(local.Hour, utc.Hour - 5)
     }
-    
+
+    // This test only succeeds if runs in Central Time (CST/CDT)
     func test_ToLocal() {
         let utc = DateTime(year: 2001, month: 05, day: 7, hour: 14, minute: 44, second: 23, kind: .Utc, weekStarts: .Monday)
         let local = utc.ToLocal()
-        XCTAssertEqual(utc.Hour, local.Hour - 1)
+        XCTAssertEqual(utc.Hour, local.Hour + 5)
     }
     
     func test_LocalToLocal() {
@@ -443,8 +452,9 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(utc1.Hour, utc2.Hour)
     }
     
+    // This test only succeeds if runs in Central Time (CST/CDT)
     func test_Equatable() {
-        let utc = DateTime(year: 2001, month: 05, day: 7, hour: 14, minute: 44, second: 23, kind: .Utc, weekStarts: .Monday)
+        let utc = DateTime(year: 2001, month: 05, day: 7, hour: 15+5, minute: 44, second: 23, kind: .Utc, weekStarts: .Monday)
         let local = DateTime(year: 2001, month: 05, day: 7, hour: 15, minute: 44, second: 23, kind: .Local, weekStarts: .Monday)
         let local2 = DateTime(year: 2001, month: 05, day: 7, hour: 16, minute: 44, second: 23, kind: .Local, weekStarts: .Monday)
         XCTAssertTrue(utc == local)
