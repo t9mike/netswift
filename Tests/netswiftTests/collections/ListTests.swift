@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import gsnet
+@testable import netswift
 
 class ListTests: XCTestCase {
 
@@ -64,14 +64,14 @@ class ListTests: XCTestCase {
         list.Add(23); list.Add(2)
         var counter = 0
         for _ in list {
-            counter++
+            counter += 1
         }
         XCTAssertEqual(2, counter)
     }
 
     func testPerformanceExample() {
         // This is an example of a performance test case.
-        self.measureBlock {
+        self.measure {
             // Put the code you want to measure the time of here.
         }
     }

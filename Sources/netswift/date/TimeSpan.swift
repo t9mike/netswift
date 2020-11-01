@@ -83,7 +83,7 @@ extension TimeSpan {
 //MARK: TIMESPAN INSTANCE METHODS
 
 extension TimeSpan {
-    public func Add(timeSpan: TimeSpan) -> TimeSpan {
+    public func Add(_ timeSpan: TimeSpan) -> TimeSpan {
         return TimeSpan(interval: self.Interval + timeSpan.Interval)
     }
     
@@ -96,7 +96,7 @@ extension TimeSpan {
         return TimeSpan(interval: self.Interval * -1)
     }
     
-    public func Subtruct(timeSpan: TimeSpan) -> TimeSpan {
+    public func Subtruct(_ timeSpan: TimeSpan) -> TimeSpan {
         return TimeSpan(interval: self.Interval - timeSpan.Interval)
     }
 }
@@ -104,27 +104,27 @@ extension TimeSpan {
 //MARK: TIMESPAN STATIC METHODS
 
 extension TimeSpan {
-    public static func FromDays(days: Double) -> TimeSpan {
+    public static func FromDays(_ days: Double) -> TimeSpan {
         return TimeSpan(days: days)
     }
     
-    public static func FromHours(hours: Double) -> TimeSpan {
+    public static func FromHours(_ hours: Double) -> TimeSpan {
         return TimeSpan(hours: hours)
     }
     
-    public static func FromMinutes(minutes: Double) -> TimeSpan {
+    public static func FromMinutes(_ minutes: Double) -> TimeSpan {
         return TimeSpan(minutes: minutes)
     }
     
-    public static func FromSeconds(seconds: Double) -> TimeSpan {
+    public static func FromSeconds(_ seconds: Double) -> TimeSpan {
         return TimeSpan(seconds: seconds)
     }
     
-    public static func FromInterval(interval: TimeInterval) -> TimeSpan {
+    public static func FromInterval(_ interval: TimeInterval) -> TimeSpan {
         return TimeSpan(interval: interval)
     }
     
-    public static func Parse(interval: String) -> TimeSpan? {
+    public static func Parse(_ interval: String) -> TimeSpan? {
         if let ticks = Double(interval) {
             return TimeSpan(interval: ticks)
         } else {

@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import gsnet
+@testable import netswift
 
 class Date_Tests: XCTestCase {
 
@@ -232,16 +232,6 @@ class Date_Tests: XCTestCase {
         
     }
     
-    func test_AddMutatingTimeSpan() {
-        var dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Local)
-        let ts = TimeSpan(days: 1, hours: 1)
-        dt.AddMutatingTimeSpan(ts)
-        XCTAssertEqual(dt.Year, 2001)
-        XCTAssertEqual(dt.Month, 12)
-        XCTAssertEqual(dt.Day, 6)
-        XCTAssertEqual(dt.Hour, 17)
-    }
-    
     func test_AddTimeSpan() {
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Local)
         let ts = TimeSpan(days: 1, hours: 1)
@@ -253,22 +243,7 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt2.Hour, 17)
         XCTAssertEqual(dt.Hour, 16)
     }
-    
-    func test_AddMutatingDays() {
-        let interval = TimeSpan(days: 1).Interval
-        var dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
-        dt.AddMutatingDays(1)
-        XCTAssertEqual(originalInterval, dt.Interval - interval)
-        XCTAssertEqual(dt.Year, 2001)
-        XCTAssertEqual(dt.Month, 12)
-        XCTAssertEqual(dt.Day, 6)
-        XCTAssertEqual(dt.Hour, 16)
-        XCTAssertEqual(dt.Minute, 42)
-        XCTAssertEqual(dt.Second, 11)
-        XCTAssertEqual(dt.Millisecond, 500)
-    }
-    
+        
     func test_AddDays() {
         let interval = TimeSpan(days: 1).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
@@ -282,21 +257,6 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt2.Minute, 42)
         XCTAssertEqual(dt2.Second, 11)
         XCTAssertEqual(dt2.Millisecond, 500)
-    }
-    
-    func test_AddMutatingHours() {
-        let interval = TimeSpan(hours: 1).Interval
-        var dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
-        dt.AddMutatingHours(1)
-        XCTAssertEqual(originalInterval, dt.Interval - interval)
-        XCTAssertEqual(dt.Year, 2001)
-        XCTAssertEqual(dt.Month, 12)
-        XCTAssertEqual(dt.Day, 5)
-        XCTAssertEqual(dt.Hour, 17)
-        XCTAssertEqual(dt.Minute, 42)
-        XCTAssertEqual(dt.Second, 11)
-        XCTAssertEqual(dt.Millisecond, 500)
     }
     
     func test_AddHours() {
@@ -314,21 +274,6 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt2.Millisecond, 500)
     }
     
-    func test_AddMutatingMinutes() {
-        let interval = TimeSpan(minutes: 1).Interval
-        var dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
-        dt.AddMutatingMinutes(1)
-        XCTAssertEqual(originalInterval, dt.Interval - interval)
-        XCTAssertEqual(dt.Year, 2001)
-        XCTAssertEqual(dt.Month, 12)
-        XCTAssertEqual(dt.Day, 5)
-        XCTAssertEqual(dt.Hour, 16)
-        XCTAssertEqual(dt.Minute, 43)
-        XCTAssertEqual(dt.Second, 11)
-        XCTAssertEqual(dt.Millisecond, 500)
-    }
-    
     func test_AddMinutes() {
         let interval = TimeSpan(minutes: 1).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
@@ -343,22 +288,7 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt2.Second, 11)
         XCTAssertEqual(dt2.Millisecond, 500)
     }
-    
-    func test_AddMutatingSeconds() {
-        let interval = TimeSpan(seconds: 47).Interval
-        var dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
-        dt.AddMutatingSeconds(47)
-        XCTAssertEqual(originalInterval, dt.Interval - interval)
-        XCTAssertEqual(dt.Year, 2001)
-        XCTAssertEqual(dt.Month, 12)
-        XCTAssertEqual(dt.Day, 5)
-        XCTAssertEqual(dt.Hour, 16)
-        XCTAssertEqual(dt.Minute, 42)
-        XCTAssertEqual(dt.Second, 58)
-        XCTAssertEqual(dt.Millisecond, 500)
-    }
-    
+        
     func test_AddSeconds() {
         let interval = TimeSpan(seconds: 47).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
@@ -373,21 +303,7 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt2.Second, 58)
         XCTAssertEqual(dt2.Millisecond, 500)
     }
-    
-    func test_AddMutatingMilliseconds() {
-        var dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
-        dt.AddMutatingMilliseconds(500)
-        XCTAssertEqual(originalInterval, dt.Interval - 0.5)
-        XCTAssertEqual(dt.Year, 2001)
-        XCTAssertEqual(dt.Month, 12)
-        XCTAssertEqual(dt.Day, 5)
-        XCTAssertEqual(dt.Hour, 16)
-        XCTAssertEqual(dt.Minute, 42)
-        XCTAssertEqual(dt.Second, 12)
-        XCTAssertEqual(dt.Millisecond, 0)
-    }
-    
+        
     func test_AddMilliseconds() {
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
         let originalInterval = dt.Interval
@@ -400,16 +316,6 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt2.Minute, 42)
         XCTAssertEqual(dt2.Second, 12)
         XCTAssertEqual(dt2.Millisecond, 0)
-    }
-    
-    func test_AddMutatingInterval() {
-        var dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Local)
-        let ts = TimeSpan(days: 1, hours: 1)
-        dt.AddMutatingInterval(ts.Interval)
-        XCTAssertEqual(dt.Year, 2001)
-        XCTAssertEqual(dt.Month, 12)
-        XCTAssertEqual(dt.Day, 6)
-        XCTAssertEqual(dt.Hour, 17)
     }
     
     func test_AddInterval() {
@@ -454,19 +360,19 @@ class Date_Tests: XCTestCase {
     }
     
     func test_ParseValid() {
-        let dt = DateTime.Parse("2015-12-08", format: "yyyy-MM-dd")
+        let dt = DateTime.Parse("2015-12-08", "yyyy-MM-dd")
         XCTAssertEqual(dt?.Year, 2015)
         XCTAssertEqual(dt?.Month, 12)
         XCTAssertEqual(dt?.Day, 8)
     }
     
     func test_ParseInvalid() {
-        let dt = DateTime.Parse("sd", format: "yyyy-MM-dd")
+        let dt = DateTime.Parse("sd", "yyyy-MM-dd")
         XCTAssertNil(dt)
     }
     
     func test_ParseValidUtc() {
-        let dt = DateTime.Parse("2015-12-08", format: "yyyy-MM-dd", kind: .Utc)
+        let dt = DateTime.Parse("2015-12-08", "yyyy-MM-dd", .Utc)
         XCTAssertEqual(dt?.Year, 2015)
         XCTAssertEqual(dt?.Month, 12)
         XCTAssertEqual(dt?.Day, 8)
@@ -474,7 +380,7 @@ class Date_Tests: XCTestCase {
     }
     
     func test_ParseValidLocal() {
-        let dt = DateTime.Parse("2015-12-08", format: "yyyy-MM-dd", kind: .Local)
+        let dt = DateTime.Parse("2015-12-08", "yyyy-MM-dd", .Local)
         XCTAssertEqual(dt?.Year, 2015)
         XCTAssertEqual(dt?.Month, 12)
         XCTAssertEqual(dt?.Day, 8)
@@ -482,7 +388,7 @@ class Date_Tests: XCTestCase {
     }
     
     func test_ParseValidSummerLocal() {
-        let dt = DateTime.Parse("2015-05-08", format: "yyyy-MM-dd", kind: .Local)
+        let dt = DateTime.Parse("2015-05-08", "yyyy-MM-dd", .Local)
         XCTAssertEqual(dt?.Year, 2015)
         XCTAssertEqual(dt?.Month, 05)
         XCTAssertEqual(dt?.Day, 8)
@@ -548,7 +454,7 @@ class Date_Tests: XCTestCase {
     
     func testPerformanceExample() {
         // This is an example of a performance test case.
-        self.measureBlock {
+        self.measure {
             // Put the code you want to measure the time of here.
         }
     }

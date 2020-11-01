@@ -24,14 +24,14 @@
 
 import Foundation
 
-private extension NSDate {
- private class func localThreadDateFormatter() -> DateFormatter {
+internal extension NSDate {
+    class func localThreadDateFormatter() -> DateFormatter {
 //     return NSDate.cachedObjectInCurrentThread("com.library.swiftdate.dateformatter") {
          let dateFormatter = DateFormatter()
          dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
          return dateFormatter
 //     }
- }
+    }
 }
 
 /*
@@ -145,7 +145,7 @@ public extension NSDate {
         let dateFormatter = NSDate.localThreadDateFormatter()
         dateFormatter.locale = NSLocale.autoupdatingCurrentLocale
         dateFormatter.dateFormat = "EEEE"
-        dateFormatter.timeZone = NSTimeZone.localTimeZone
+        dateFormatter.timeZone = TimeZone.localTimeZone
         return dateFormatter.stringFromDate(self)
     }
 
@@ -205,7 +205,7 @@ public extension NSDate {
         switch format {
         case .ISO8601: // 1972-07-16T08:15:30-05:00
             dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-            dateFormatter.timeZone = NSTimeZone.localTimeZone()
+            dateFormatter.timeZone = TimeZone.localTimeZone()
             dateFormatter.dateFormat = ISO8601Formatter(fromString: string)
             return dateFormatter.dateFromString(string)
         case .AltRSS: // 09 Sep 2011 15:26:08 +0200
@@ -294,7 +294,7 @@ public extension NSDate {
      :param: hour    hour component (nil to leave it untouched)
      :param: minute  minute component (nil to leave it untouched)
      :param: second  second component (nil to leave it untouched)
-     :param: tz      time zone component (it's the abbreviation of NSTimeZone, like 'UTC' or 'GMT+2', nil to use current time zone)
+     :param: tz      time zone component (it's the abbreviation of TimeZone, like 'UTC' or 'GMT+2', nil to use current time zone)
      :returns: a new NSDate with components changed according to passed params
      */
     class func date(refDate refDate: NSDate? = nil, year: Int? = nil, month: Int? = nil, day: Int? = nil, hour: Int? = nil, minute: Int? = nil, second: Int? = nil, tz: String? = nil) -> NSDate {
@@ -312,7 +312,7 @@ public extension NSDate {
      :param: hour    hour component (nil to leave it untouched)
      :param: minute  minute component (nil to leave it untouched)
      :param: second  second component (nil to leave it untouched)
-     :param: tz      time zone component (it's the abbreviation of NSTimeZone, like 'UTC' or 'GMT+2', nil to use current time zone)
+     :param: tz      time zone component (it's the abbreviation of TimeZone, like 'UTC' or 'GMT+2', nil to use current time zone)
      :returns: a new NSDate with components changed according to passed params
      */
     convenience init(var refDate: NSDate? = nil, year: Int, month: Int, day: Int, hour: Int? = nil, minute: Int? = nil, second: Int? = nil, let tz: String? = nil) {
@@ -372,7 +372,7 @@ public extension NSDate {
      :param: hour   a non-nil value to change the hour component of the instance
      :param: minute a non-nil value to change the minute component of the instance
      :param: second a non-nil value to change the second component of the instance
-     :param: tz     a non-nil value (timezone abbreviation string as for NSTimeZone) to change the timezone component of the instance
+     :param: tz     a non-nil value (timezone abbreviation string as for TimeZone) to change the timezone component of the instance
      
      :returns: a new NSDate instance with changed values
      */
@@ -396,7 +396,7 @@ public extension NSDate {
         if second != nil {
             components.second = second!
         }
-        components.timeZone = (tz != nil ? NSTimeZone(abbreviation: tz!) : NSTimeZone.defaultTimeZone())
+        components.timeZone = (tz != nil ? TimeZone(abbreviation: tz!) : TimeZone.defaultTimeZone())
 
         // Set weekday stuff to undefined to prevent dateFromComponents to get confused
         components.yearForWeekOfYear = NSDateComponentUndefined
@@ -523,7 +523,7 @@ public extension NSDate {
      :returns: a new NSDate instance
      */
     func toUTC() -> NSDate {
-        let tz: NSTimeZone = NSTimeZone.localTimeZone()
+        let tz: TimeZone = TimeZone.localTimeZone()
         let secs: Int = tz.secondsFromGMTForDate(self)
         return NSDate(timeInterval: TimeInterval(secs), sinceDate: self)
     }
@@ -534,7 +534,7 @@ public extension NSDate {
      :returns: a new NSDate instance
      */
     func toLocalTime() -> NSDate {
-        let tz: NSTimeZone = NSTimeZone.localTimeZone()
+        let tz: TimeZone = TimeZone.localTimeZone()
         let secs: Int = tz.secondsFromGMTForDate(self)
         return NSDate(timeInterval: TimeInterval(secs), sinceDate: self)
     }
@@ -547,7 +547,7 @@ public extension NSDate {
      :returns: a new NSDate instance
      */
     func toTimezone(abbreviation: String!) -> NSDate? {
-        let tz: NSTimeZone? = NSTimeZone(abbreviation: abbreviation)
+        let tz: TimeZone? = TimeZone(abbreviation: abbreviation)
         if tz == nil {
             return nil
         }
@@ -679,7 +679,7 @@ public extension NSDate {
     func isInTimeRange(minTime: String!, maxTime: String!, format: String?) -> Bool {
         let dateFormatter = NSDate.localThreadDateFormatter()
         dateFormatter.dateFormat = format ?? "HH:mm"
-        dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC")
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         let minTimeDate = dateFormatter.dateFromString(minTime)
         let maxTimeDate = dateFormatter.dateFromString(maxTime)
         if minTimeDate == nil || maxTimeDate == nil {
@@ -927,7 +927,7 @@ public extension NSDate {
     public func toISOString() -> String {
         let dateFormatter = NSDate.localThreadDateFormatter()
         dateFormatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
-        dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC")
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
         return dateFormatter.stringFromDate(self).stringByAppendingString("Z")
     }
