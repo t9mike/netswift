@@ -73,21 +73,21 @@ class Date_Tests: XCTestCase {
 
     func test_ToNSDate() {
         let dt: DateTime = DateTime(year: 1255, month: 03, day: 4)
-        XCTAssertNotNil(dt.ToNSDate! as NSDate)
+        XCTAssertNotNil(dt.ToNSDate()! as NSDate)
         let dt2: DateTime = DateTime(year: 1244, month: 02, day: 5, kind: .Utc)
-        XCTAssertNotNil(dt2.ToNSDate! as NSDate)
+        XCTAssertNotNil(dt2.ToNSDate()! as NSDate)
     }
 
     func test_ToNSDate_Into_New_DateObject_Utc() {
         let dt1: DateTime = DateTime(year: 1266, month: 03, day: 5, kind: .Utc)
-        let nsdate: NSDate = dt1.ToNSDate!
+        let nsdate: NSDate = dt1.ToNSDate()!
         let dt2: DateTime = DateTime(nsdate: nsdate)
         XCTAssertNotNil(dt2 as DateTime)
     }
 
     func test_ToNSDate_Into_New_DateObject_Non_Utc() {
         let dt1: DateTime = DateTime(year: 1266, month: 03, day: 5)
-        let nsdate: NSDate = dt1.ToNSDate!
+        let nsdate: NSDate = dt1.ToNSDate()!
         let dt2: DateTime = DateTime(nsdate: nsdate)
         XCTAssertNotNil(dt2 as DateTime)
     }
@@ -248,6 +248,7 @@ class Date_Tests: XCTestCase {
         let interval = TimeSpan(days: 1).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
         let originalInterval = dt.Interval
+                
         let dt2 = dt.AddDays(1)
         XCTAssertEqual(originalInterval, dt2.Interval - interval)
         XCTAssertEqual(dt2.Year, 2001)
@@ -257,6 +258,14 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt2.Minute, 42)
         XCTAssertEqual(dt2.Second, 11)
         XCTAssertEqual(dt2.Millisecond, 500)
+        
+        // TODO: this shows issue with adding nanoseconds to date now working
+        var c = DateComponents()
+//        c.second = 86400
+        c.nanosecond = 86400 * Int(1e9)
+        let d3 = NSCalendar.current.date(byAdding: c, to: dt.ToNSDate()! as Date)
+        print(dt.ToNSDate()!)
+        print(d3!)        
     }
     
     func test_AddHours() {
@@ -436,13 +445,13 @@ class Date_Tests: XCTestCase {
     // This test only succeeds if runs in Central Time (CST/CDT)
     func test_ToLocal() {
         let utc = DateTime(year: 2001, month: 05, day: 7, hour: 14, minute: 44, second: 23, kind: .Utc, weekStarts: .Monday)
-        let local = utc.ToLocal()
+        let local = utc.ToLocalTime()
         XCTAssertEqual(utc.Hour, local.Hour + 5)
     }
     
     func test_LocalToLocal() {
         let local1 = DateTime(year: 2001, month: 05, day: 7, hour: 14, minute: 44, second: 23, kind: .Local, weekStarts: .Monday)
-        let local2 = local1.ToLocal()
+        let local2 = local1.ToLocalTime()
         XCTAssertEqual(local1.Hour, local2.Hour)
     }
     

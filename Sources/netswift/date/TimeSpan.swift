@@ -9,7 +9,7 @@
 import Foundation
 
 public struct TimeSpan {
-    private var _ticks: Double {
+    var Ticks: Double {
         get { return self.getTicksFromUnits(days: _days, hours: _hours, minutes: _minutes, seconds: _seconds, milliseconds: _milliseconds, nanoseconds: _nanoseconds)
         }
     }
@@ -29,6 +29,13 @@ public struct TimeSpan {
         self.popullateUnits(ticks: getTicksFromUnits(days: days, hours: hours, minutes: minutes, seconds: seconds, milliseconds: milliseconds, nanoseconds: nanoseconds))
     }
     
+    public func Absolute() -> TimeSpan {
+        return TimeSpan(interval: Math.Abs(Ticks))
+    }
+
+    public static var Zero : TimeSpan {
+        return TimeSpan(interval: 0)
+    }
 }
 
 //MARK: TIMESPAN READONLY PROPERTIES
@@ -60,7 +67,7 @@ extension TimeSpan {
     }
     
     public var Interval: TimeInterval {
-        return _ticks
+        return Ticks
     }
     
     public var TotalSeconds: Double {
@@ -104,6 +111,10 @@ extension TimeSpan {
 //MARK: TIMESPAN STATIC METHODS
 
 extension TimeSpan {
+    public static func FromTicks(_ ticks : Int) -> TimeSpan {
+        return TimeSpan(interval: Double(ticks))
+    }
+
     public static func FromDays(_ days: Double) -> TimeSpan {
         return TimeSpan(days: days)
     }

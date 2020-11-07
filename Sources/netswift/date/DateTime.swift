@@ -10,7 +10,7 @@ import Foundation
 
 //MARK: INITIALISERS AND PRIVATE MEMBERS
 
-public struct DateTime {
+public struct DateTime : Hashable,CustomStringConvertible {
     internal var _date: NSDate
     private var _kind: DateTimeKind = .Unspecified
     private var _weekStarts: DayOfWeeks = .Sunday
@@ -35,6 +35,20 @@ public struct DateTime {
         _kind = kind
     }
 
+    public static var MinValue : DateTime
+    {
+        return DateTime(nsdate: NSDate.distantPast as NSDate)
+    }
+
+    public static var MaxValue : DateTime
+    {
+        return DateTime(nsdate: NSDate.distantFuture as NSDate)
+    }
+
+    public init(_ year: Int, _ month: Int, _ day: Int, _ kind: DateTimeKind = .Local, _ weekStarts: DayOfWeeks = .Sunday) {
+        self.init(year: year, month: month, day: day, kind: kind, weekStarts: weekStarts)
+    }
+    
     public init(nsdate: NSDate, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         _weekStarts = weekStarts
         let timeZone: TimeZone = DateTime.dateTimeKindToTimeZone(kind)
@@ -77,6 +91,31 @@ public struct DateTime {
         _date = NSDate(timeIntervalSinceReferenceDate: Double(ticks) / DateTime.LDAP_TICKS_IN_SECOND - interval)
         _kind = kind
     }
+    
+    /// A signed number indicating the relative values of this instance and value.
+    ///
+    ///     RETURNS
+    ///     Return Value    Description
+    ///     Less than zero    This instance is less than value.
+    ///     Zero    This instance is equal to value.
+    ///     Greater than zero    This instance is greater than value.
+    public func CompareTo(_ d : DateTime) -> Int
+    {
+        if (self < d)
+        {
+            return -1
+        }
+        if (self > d)
+        {
+            return 1
+        }
+        return 0
+    }
+    
+    public var description: String {
+        return ToString("yyyy-MM-dd HH:mm:ss.SSS zzz")
+    }
+
 }
 
 //MARK: PUBLIC DATETIME PROPERTIES
@@ -168,7 +207,7 @@ public extension DateTime {
     Read-only: the NSDate core type
      - Returns: **copy** NSDate object
     */
-    var ToNSDate: NSDate? {
+    func ToNSDate() -> NSDate? {
 
         return _date.copy() as? NSDate
     }
@@ -293,17 +332,32 @@ public extension DateTime {
         component.day = days
         return AddComponents(component)
     }
-    
+
+    /// Rounds to integral seconds
+    func AddDays(_ days: Double) -> DateTime {
+        return AddSeconds((days*24*60*60).roundToInt())
+    }
+
     func AddHours(_ hours: Int) -> DateTime {
         var component = DateComponents()
         component.hour = hours
         return AddComponents(component)
     }
 
+    /// Rounds to integral seconds
+    func AddHours(_ hours: Double) -> DateTime {
+        return AddSeconds((hours*60*60).roundToInt())
+    }
+    
     func AddMinutes(_ minutes: Int) -> DateTime {
         var component = DateComponents()
         component.minute = minutes
         return AddComponents(component)
+    }
+
+    /// Rounds to integral seconds
+    func AddMinutes(_ minutes: Double) -> DateTime {
+        return AddSeconds((minutes*60).roundToInt())
     }
 
     func AddSeconds(_ seconds: Int) -> DateTime {
@@ -311,23 +365,26 @@ public extension DateTime {
         component.second = seconds
         return AddComponents(component)
     }
-
+    
     func AddMilliseconds(_ milliseconds: Int) -> DateTime {
         var component = DateComponents()
         component.nanosecond = milliseconds * DateTime.NANOSECONDS_IN_MILLISECOND
         return AddComponents(component)
     }
-    
+
     func AddInterval(_ interval: TimeInterval) -> DateTime {
         let date = self._date.addingTimeInterval(interval)
         return self.withNewDate(date as Date)
     }
     
     func IsLeapYear() -> Bool {
-        let year = self.Year
+        return DateTime.IsLeapYear(self.Year)
+    }
+
+    static func IsLeapYear(_ year : Int) -> Bool {
         return (( year % 100 != 0)) && (year % 4 == 0) || year % 400 == 0
     }
-    
+
     func IsDaylightSavingTime() -> Bool {
         let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
         return timeZone.isDaylightSavingTime(for: _date as Date)
@@ -383,14 +440,60 @@ public extension DateTime {
             return DateTime(nsdate: _date, kind: .Utc, weekStarts: _weekStarts)
         }
     }
-    
-    func ToLocal() -> DateTime {
+
+    func ToUniversalTime() -> DateTime {
+        return ToUtc()
+    }
+
+    func ToLocalTime() -> DateTime {
         if self._kind == .Local {
             return self
         } else {
             return DateTime(nsdate: _date, kind: .Local, weekStarts: _weekStarts)
         }
     }
+    
+    // This function is duplicated in COMDateTime.cpp
+    /*
+    private static func TicksToOADate(_ value: Int) -> Double {
+        if value == 0 {
+            return 0.0
+        }
+        //  Returns OleAut's zero'ed date value.
+        var value = value
+        if value < TicksPerDay {
+            value = value + DoubleDateOffset
+        }
+        //  We could have moved this fix down but we would like to keep the bounds check.
+        if value < OADateMinAsTicks {
+            fatalError("Arg_OleAutDateInvalid")
+        }
+        //  Currently, our max date == OA's max date (12/31/9999), so we don't
+        //  need an overflow check in that direction.
+        var millis: Int = (value - DoubleDateOffset) / TicksPerMillisecond
+        if millis < 0 {
+            let frac: Int = millis % MillisPerDay
+            if frac != 0 {
+                millis = millis - (MillisPerDay + frac) * 2
+            }
+        }
+        return Double(millis) / Double(MillisPerDay)
+    }
+ */
+
+    func Subtract(_ value : DateTime) -> TimeSpan{
+        return TimeSpan(interval: Double(self.Ticks - value.Ticks))
+    }
+    
+    // TODO: add test
+    func Subtract(_ value : TimeSpan ) -> DateTime {
+        return self.AddInterval(-value.Ticks)
+   }
+
+    func Add(_ value : TimeSpan ) -> DateTime {
+        return self + value
+   }
+
 }
 
 //MARK: INTERNAL DATETIME CONSTANTS
@@ -531,6 +634,11 @@ public func +(left: DateTime, right: TimeSpan) -> DateTime {
 public func -(left: DateTime, right: TimeSpan) -> DateTime {
     return DateTime(interval: left.Interval - right.Interval, kind: left.Kind, weekStarts: left.WeekStarts)
 }
+
+public func -(lhs: DateTime, rhs: DateTime) -> TimeSpan {
+    return lhs.Subtract(rhs)
+}
+
 
 //MARK: EQUATABLE IMPLEMENTATION
 
