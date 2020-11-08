@@ -68,7 +68,7 @@ class Date_Tests: XCTestCase {
 
     func test_AsDate() {
         let dt: DateTime = DateTime(year: 2001, month: 02, day: 03)
-        XCTAssertNotNil(dt.AsDate! as NSDate)
+        XCTAssertNotNil(dt.AsDate as NSDate)
     }
 
     func test_ToNSDate() {
