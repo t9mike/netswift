@@ -199,8 +199,12 @@ public extension DateTime {
     Read-only: the NSDate core type
      - Returns: **original** NSDate object (will mutate the original Date object)
     */
-    var AsDate: NSDate? {
+    var AsNSDate: NSDate {
         return _date
+    }
+
+    var AsDate: Date {
+        return _date as Date
     }
 
     /**
@@ -276,7 +280,7 @@ public extension DateTime {
     }
     
     var TimeOfDay: TimeSpan {
-        return TimeSpan(hours: Double(self.Hour), minutes: Double(self.Minute), seconds: Double(self.Second), milliseconds: Double(self.Millisecond))
+        return TimeSpan(hours: self.Hour, minutes: self.Minute, seconds: self.Second, milliseconds: self.Millisecond)
     }
     
     var WeekStarts: DayOfWeeks {
