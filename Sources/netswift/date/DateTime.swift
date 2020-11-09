@@ -217,7 +217,7 @@ public extension DateTime {
     }
 
     /**
-    Read-only: Double ticks since reference (**2001-01-01**)
+    Read-only: Fractional seconds  reference (**2001-01-01**).
      - Returns: Double in second
     */
     var Interval: Double {
@@ -241,7 +241,7 @@ public extension DateTime {
     }
 
     /**
-     Read-only: Int ticks since fileTime zero (**0001-01-01**)
+     Read-only: Integer ticks since fileTime zero (**0001-01-01**)
      - Returns: Int
      */
     var Ticks: Int {

@@ -92,7 +92,7 @@ class Date_Tests: XCTestCase {
         XCTAssertNotNil(dt2 as DateTime)
     }
 
-    func test_Tick_Reference_Utc() {
+    func test_Interval_Reference_Utc() {
         let dt1: DateTime = DateTime(year: 2011, month: 04, day: 1, hour: 0, minute: 0, second: 0, millisecond: 888, kind: .Utc)
         let dt2: DateTime = DateTime(interval: dt1.Interval, kind: .Utc)
         XCTAssertEqual(dt1.Year, dt2.Year)
@@ -104,7 +104,7 @@ class Date_Tests: XCTestCase {
         XCTAssertEqual(dt1.Millisecond, dt2.Millisecond)
     }
 
-    func test_Tick_Reference_Local() {
+    func test_Interval_Reference_Local() {
         let dt1: DateTime = DateTime(year: 2011, month: 04, day: 4, hour: 11, minute: 22, second: 11, millisecond: 888, kind: .Local)
         let dt2: DateTime = DateTime(interval: dt1.Interval, kind: .Local)
         XCTAssertEqual(dt1.Year, dt2.Year)
@@ -130,6 +130,12 @@ class Date_Tests: XCTestCase {
     func test_DtTicks_Prop_Utc() {
         let dt: DateTime = DateTime(year: 1961, month: 8, day: 1, hour: 23, minute: 6, second: 40, millisecond: 0, kind: .Utc)
         XCTAssertEqual(dt.Ticks, 618700000000000000)
+    }
+
+    // This test only succeeds if runs in Central Time (CST/CDT)
+    func test_DtTicks_Prop_Local() {
+        let dt: DateTime = DateTime(year: 1961, month: 8, day: 1, hour: 23-5, minute: 6, second: 40, millisecond: 0, kind: .Local)
+        XCTAssertEqual(dt.Ticks, 618699820000000000)
     }
 
     func test_InitLDapTick_Utc() {
