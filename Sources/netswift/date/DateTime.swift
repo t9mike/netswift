@@ -14,6 +14,9 @@ public struct DateTime : Hashable,CustomStringConvertible {
     internal var _date: NSDate
     private var _kind: DateTimeKind = .Unspecified
     private var _weekStarts: DayOfWeeks = .Sunday
+    
+    
+    public private(set) var Timezone : TimeZone
 
     public init(year: Int = 2001, month: Int = 1, day: Int = 1, hour: Int = 0, minute: Int = 0, second: Int = 0, millisecond: Int = 0, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         _weekStarts  = weekStarts
@@ -22,16 +25,17 @@ public struct DateTime : Hashable,CustomStringConvertible {
         let dayRanged = Math.MoveToRange(x: day, min: 1, max: DateTime.DaysInMonth(year: yearRanged, month: monthRanged)!)
         let nanosecond = (millisecond * DateTime.NANOSECONDS_IN_MILLISECOND)
         
+        Timezone = DateTime.dateTimeKindToTimeZone(kind)
         let components = NSDateComponents()
         _date = components.nSDateFromComponents(
             year: yearRanged,
-                month: monthRanged,
-                day: dayRanged,
-                hour: Math.MoveToRange(x: hour, min: 0, max: 23),
-                minute: Math.MoveToRange(x: minute, min: 0, max: 59),
-                second: Math.MoveToRange(x: second, min: 0, max: 59),
-                nanosecond: nanosecond,
-            timeZone: DateTime.dateTimeKindToTimeZone(kind))! as NSDate
+            month: monthRanged,
+            day: dayRanged,
+            hour: Math.MoveToRange(x: hour, min: 0, max: 23),
+            minute: Math.MoveToRange(x: minute, min: 0, max: 59),
+            second: Math.MoveToRange(x: second, min: 0, max: 59),
+            nanosecond: nanosecond,
+            timeZone: Timezone)! as NSDate
         _kind = kind
     }
 
@@ -51,9 +55,9 @@ public struct DateTime : Hashable,CustomStringConvertible {
     
     public init(nsdate: NSDate, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         _weekStarts = weekStarts
-        let timeZone: TimeZone = DateTime.dateTimeKindToTimeZone(kind)
+        Timezone = DateTime.dateTimeKindToTimeZone(kind)
         var calendar = NSCalendar.current
-        calendar.timeZone = timeZone
+        calendar.timeZone = Timezone
         _date = nsdate
         _kind = kind
     }
@@ -71,23 +75,23 @@ public struct DateTime : Hashable,CustomStringConvertible {
     }
 
     public init(ticks: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
-        self.init(ticks: ticks, kind: kind, interval: DateTime.TICKS_BETWEEN_REFERENCEZERO_AND_DTZERO_IN_SECONDS, weekStarts: weekStarts)
+        self.init(ticks: ticks, kind: kind, interval: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_DTZERO, weekStarts: weekStarts)
     }
     
     private init(interval: Double, kind: DateTimeKind, intervalSince: Double, weekStarts: DayOfWeeks) {
         _weekStarts = weekStarts
-        let timeZone: TimeZone = DateTime.dateTimeKindToTimeZone(kind)
+        Timezone = DateTime.dateTimeKindToTimeZone(kind)
         var calendar = NSCalendar.current
-        calendar.timeZone = timeZone
+        calendar.timeZone = Timezone
         _date = NSDate(timeIntervalSinceReferenceDate: interval + intervalSince)
         _kind = kind
     }
 
     private init(ticks: Int, kind: DateTimeKind, interval: Double, weekStarts: DayOfWeeks) {
         _weekStarts = weekStarts
-        let timeZone: TimeZone = DateTime.dateTimeKindToTimeZone(kind)
+        Timezone = DateTime.dateTimeKindToTimeZone(kind)
         var calendar = NSCalendar.current
-        calendar.timeZone = timeZone
+        calendar.timeZone = Timezone
         _date = NSDate(timeIntervalSinceReferenceDate: Double(ticks) / DateTime.LDAP_TICKS_IN_SECOND - interval)
         _kind = kind
     }
@@ -217,15 +221,15 @@ public extension DateTime {
     }
 
     /**
-    Read-only: Fractional seconds  reference (**2001-01-01**).
+    Read-only: Fractional seconds  reference, UTC always (**2001-01-01**)
      - Returns: Double in second
     */
-    var Interval: Double {
+    var IntervalUTC: Double {
         return _date.timeIntervalSinceReferenceDate
     }
 
     /**
-     Read-only: Double ticks since epoch zero (**1970-01-01**)
+     Read-only: Fractional seconds  since epoch zero, UTC always (**1970-01-01**)
      - Returns: Double in second
      */
     var Epoch: Double {
@@ -233,7 +237,7 @@ public extension DateTime {
     }
 
     /**
-     Read-only: Double ticks since epoch zero (**1601-01-01**)
+     Read-only: In teger LDAP ticks since epoch zero, UTC always (**1601-01-01**)
      - Returns: Double in second
      */
     var LDAP: Int {
@@ -241,11 +245,20 @@ public extension DateTime {
     }
 
     /**
-     Read-only: Integer ticks since fileTime zero (**0001-01-01**)
+     Read-only: Integer ticks since fileTime zero, UTC always  (**0001-01-01**)
+     - Returns: Int
+     */
+    var TicksUTC: Int {
+        return Int((self.IntervalUTC + DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_DTZERO) * DateTime.LDAP_TICKS_IN_SECOND)
+    }
+
+    /**
+     Read-only: Integer ticks since fileTime zero, matching Kind timezone (i.e. local or UTC)  (**0001-01-01**).
+     This matches .NET implementation.
      - Returns: Int
      */
     var Ticks: Int {
-        return Int((self.Interval + DateTime.TICKS_BETWEEN_REFERENCEZERO_AND_DTZERO_IN_SECONDS) * DateTime.LDAP_TICKS_IN_SECOND)
+        return Int((self.IntervalUTC + Double(Timezone.secondsFromGMT(for: _date as Date)) + DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_DTZERO) * DateTime.LDAP_TICKS_IN_SECOND)
     }
 
     /**
@@ -395,7 +408,7 @@ public extension DateTime {
     }
     
     func Equals(_ dateTime: DateTime) -> Bool {
-        if (self.Interval == dateTime.Interval) {
+        if (self.IntervalUTC == dateTime.IntervalUTC) {
             return true
         }
         return false
@@ -549,7 +562,7 @@ public extension DateTime {
     }
 
     func Subtract(_ value : DateTime) -> TimeSpan{
-        return TimeSpan(interval: Double(self.Ticks - value.Ticks))
+        return TimeSpan(interval: Double(self.TicksUTC - value.TicksUTC))
     }
     
     // TODO: add test
@@ -570,7 +583,7 @@ internal extension DateTime {
 
     static let NANOSECONDS_IN_MILLISECOND: Int = 1000000
 
-    static let TICKS_BETWEEN_REFERENCEZERO_AND_DTZERO_IN_SECONDS: Double = 63113904000
+    static let SECONDS_BETWEEN_REFERENCEZERO_AND_DTZERO: Double = 63113904000
     static let SECONDS_BETWEEN_REFERENCEZERO_AND_EPOCHZERO: Double = 978307200
     static let SECONDS_BETWEEN_REFERENCEZERO_AND_LDAPZERO: Double = 12622780800
 }
@@ -695,11 +708,11 @@ internal extension NSDateComponents {
 //MARK: ARITHMETICS OVERLOADS
 
 public func +(left: DateTime, right: TimeSpan) -> DateTime {
-    return DateTime(interval: left.Interval + right.Interval, kind: left.Kind, weekStarts: left.WeekStarts)
+    return DateTime(interval: left.IntervalUTC + right.Interval, kind: left.Kind, weekStarts: left.WeekStarts)
 }
 
 public func -(left: DateTime, right: TimeSpan) -> DateTime {
-    return DateTime(interval: left.Interval - right.Interval, kind: left.Kind, weekStarts: left.WeekStarts)
+    return DateTime(interval: left.IntervalUTC - right.Interval, kind: left.Kind, weekStarts: left.WeekStarts)
 }
 
 public func -(lhs: DateTime, rhs: DateTime) -> TimeSpan {
@@ -724,18 +737,18 @@ public func !=(left: DateTime, right: DateTime) -> Bool {
 extension DateTime: Comparable {}
 
 public func <(left: DateTime, right: DateTime) -> Bool {
-    return (left.Interval < right.Interval)
+    return (left.IntervalUTC < right.IntervalUTC)
 }
 
 public func >(left: DateTime, right: DateTime) -> Bool {
-    return (left.Interval > right.Interval)
+    return (left.IntervalUTC > right.IntervalUTC)
 }
 
 public func <=(left: DateTime, right: DateTime) -> Bool {
-    return (left.Interval <= right.Interval)
+    return (left.IntervalUTC <= right.IntervalUTC)
 }
 
 public func >=(left: DateTime, right: DateTime) -> Bool {
-    return (left.Interval >= right.Interval)
+    return (left.IntervalUTC >= right.IntervalUTC)
 }
 

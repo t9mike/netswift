@@ -94,7 +94,7 @@ class Date_Tests: XCTestCase {
 
     func test_Interval_Reference_Utc() {
         let dt1: DateTime = DateTime(year: 2011, month: 04, day: 1, hour: 0, minute: 0, second: 0, millisecond: 888, kind: .Utc)
-        let dt2: DateTime = DateTime(interval: dt1.Interval, kind: .Utc)
+        let dt2: DateTime = DateTime(interval: dt1.IntervalUTC, kind: .Utc)
         XCTAssertEqual(dt1.Year, dt2.Year)
         XCTAssertEqual(dt1.Month, dt2.Month)
         XCTAssertEqual(dt1.Day, dt2.Day)
@@ -106,7 +106,7 @@ class Date_Tests: XCTestCase {
 
     func test_Interval_Reference_Local() {
         let dt1: DateTime = DateTime(year: 2011, month: 04, day: 4, hour: 11, minute: 22, second: 11, millisecond: 888, kind: .Local)
-        let dt2: DateTime = DateTime(interval: dt1.Interval, kind: .Local)
+        let dt2: DateTime = DateTime(interval: dt1.IntervalUTC, kind: .Local)
         XCTAssertEqual(dt1.Year, dt2.Year)
         XCTAssertEqual(dt1.Month, dt2.Month)
         XCTAssertEqual(dt1.Day, dt2.Day)
@@ -129,13 +129,14 @@ class Date_Tests: XCTestCase {
 
     func test_DtTicks_Prop_Utc() {
         let dt: DateTime = DateTime(year: 1961, month: 8, day: 1, hour: 23, minute: 6, second: 40, millisecond: 0, kind: .Utc)
-        XCTAssertEqual(dt.Ticks, 618700000000000000)
+        XCTAssertEqual(dt.TicksUTC, 618700000000000000)
     }
 
     // This test only succeeds if runs in Central Time (CST/CDT)
     func test_DtTicks_Prop_Local() {
         let dt: DateTime = DateTime(year: 1961, month: 8, day: 1, hour: 23-5, minute: 6, second: 40, millisecond: 0, kind: .Local)
-        XCTAssertEqual(dt.Ticks, 618699820000000000)
+        XCTAssertEqual(dt.Ticks, 618699820000000000) // Via C# test program
+        XCTAssertEqual(dt.TicksUTC, 618700000000000000) // Via C# test program
     }
 
     func test_InitLDapTick_Utc() {
@@ -253,10 +254,10 @@ class Date_Tests: XCTestCase {
     func test_AddDays() {
         let interval = TimeSpan(days: 1).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
+        let originalInterval = dt.IntervalUTC
                 
         let dt2 = dt.AddDays(1)
-        XCTAssertEqual(originalInterval, dt2.Interval - interval)
+        XCTAssertEqual(originalInterval, dt2.IntervalUTC - interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
         XCTAssertEqual(dt2.Day, 6)
@@ -277,9 +278,9 @@ class Date_Tests: XCTestCase {
     func test_AddHours() {
         let interval = TimeSpan(hours: 1).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
+        let originalInterval = dt.IntervalUTC
         let dt2 = dt.AddHours(1)
-        XCTAssertEqual(originalInterval, dt2.Interval - interval)
+        XCTAssertEqual(originalInterval, dt2.IntervalUTC - interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
         XCTAssertEqual(dt2.Day, 5)
@@ -292,9 +293,9 @@ class Date_Tests: XCTestCase {
     func test_AddMinutes() {
         let interval = TimeSpan(minutes: 1).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
+        let originalInterval = dt.IntervalUTC
         let dt2 = dt.AddMinutes(1)
-        XCTAssertEqual(originalInterval, dt2.Interval - interval)
+        XCTAssertEqual(originalInterval, dt2.IntervalUTC - interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
         XCTAssertEqual(dt2.Day, 5)
@@ -307,9 +308,9 @@ class Date_Tests: XCTestCase {
     func test_AddSeconds() {
         let interval = TimeSpan(seconds: 47).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
+        let originalInterval = dt.IntervalUTC
         let dt2 = dt.AddSeconds(47)
-        XCTAssertEqual(originalInterval, dt2.Interval - interval)
+        XCTAssertEqual(originalInterval, dt2.IntervalUTC - interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
         XCTAssertEqual(dt2.Day, 5)
@@ -321,9 +322,9 @@ class Date_Tests: XCTestCase {
         
     func test_AddMilliseconds() {
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
-        let originalInterval = dt.Interval
+        let originalInterval = dt.IntervalUTC
         let dt2 = dt.AddMilliseconds(500)
-        XCTAssertEqual(originalInterval, dt2.Interval - 0.5)
+        XCTAssertEqual(originalInterval, dt2.IntervalUTC - 0.5)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
         XCTAssertEqual(dt2.Day, 5)
@@ -337,7 +338,7 @@ class Date_Tests: XCTestCase {
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Local)
         let ts = TimeSpan(days: 1, hours: 1)
         let dt2 = dt.AddInterval(ts.Interval)
-        XCTAssertEqual(dt.Interval, dt2.Interval - ts.Interval)
+        XCTAssertEqual(dt.IntervalUTC, dt2.IntervalUTC - ts.Interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
         XCTAssertEqual(dt2.Day, 6)
@@ -480,8 +481,7 @@ class Date_Tests: XCTestCase {
     func test_TOADate() {
         let local = DateTime(year: 2020, month: 10, day: 31, hour: 14, minute: 0, second: 0, kind: .Local)
         let oadate = local.ToOADate()
-        let expected = 44135.5833333333 // Via C# test program
-        print(local.Ticks)
+        let expected = 4.4135583333333336E4 // Via C# test program
         XCTAssertTrue(oadate == expected)
     }
     
