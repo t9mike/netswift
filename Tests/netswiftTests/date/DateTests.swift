@@ -470,6 +470,14 @@ class Date_Tests: XCTestCase {
         XCTAssertTrue(local != local2)
         XCTAssertTrue(local2 > local)
     }
+
+    func test_TOADate() {
+        let local = DateTime(year: 2020, month: 10, day: 31, hour: 14, minute: 0, second: 0, kind: .Local)
+        let oadate = local.ToOADate()
+        let expected = 44135.5833333333 // Via C# test program
+        print(local.Ticks)
+        XCTAssertTrue(oadate == expected)
+    }
     
     func testPerformanceExample() {
         // This is an example of a performance test case.

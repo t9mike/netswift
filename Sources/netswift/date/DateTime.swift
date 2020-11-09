@@ -457,8 +457,72 @@ public extension DateTime {
         }
     }
     
+    private static let DaysTo10000: Int = (DaysPer400Years * 25) - 366
+    internal static let MinTicks: Int = 0
+    internal static let MaxTicks: Int = (DaysTo10000 * TicksPerDay) - 1
+    private static let MaxMillis: Int = DaysTo10000 * MillisPerDay
+    private static let FileTimeOffset: Int = DaysTo1601 * TicksPerDay
+    //  The minimum OA date is 0100/01/01 (Note it's year 100).
+    //  The maximum OA date is 9999/12/31
+    //
+    private static let DoubleDateOffset: Int = DaysTo1899 * TicksPerDay
+    //  All OA dates must be greater than (not >=) OADateMinAsDouble
+    //
+    private static let OADateMinAsTicks: Int = (DaysPer100Years - DaysPerYear) * TicksPerDay
+    //  All OA dates must be less than (not <=) OADateMaxAsDouble
+    //
+    private static let OADateMinAsDouble: Double = -657435.0
+    private static let OADateMaxAsDouble: Double = 2958466.0
+
+    private static let TicksPerMillisecond: Int = 10000
+    private static let TicksPerSecond: Int = TicksPerMillisecond * 1000
+    private static let TicksPerMinute: Int = TicksPerSecond * 60
+    private static let TicksPerHour: Int = TicksPerMinute * 60
+    //  Number of milliseconds per time unit
+    //
+    private static let TicksPerDay: Int = TicksPerHour * 24
+    private static let MillisPerSecond: Int = 1000
+    private static let MillisPerMinute: Int = MillisPerSecond * 60
+    private static let MillisPerHour: Int = MillisPerMinute * 60
+    //  Number of days in a non-leap year
+    //
+    private static let MillisPerDay: Int = MillisPerHour * 24
+    //  Number of days in 4 years
+    //
+    private static let DaysPerYear: Int = 365
+    //  1461
+    //  Number of days in 100 years
+    //
+    private static let DaysPer4Years: Int = (DaysPerYear * 4) + 1
+    //  36524
+    //  Number of days in 400 years
+    //
+    private static let DaysPer100Years: Int = (DaysPer4Years * 25) - 1
+    //  146097
+    //  Number of days from 1/1/0001 to 12/31/1600
+    //
+    private static let DaysPer400Years: Int = (DaysPer100Years * 4) + 1
+    //  584388
+    //  Number of days from 1/1/0001 to 12/30/1899
+    //
+    private static let DaysTo1601: Int = DaysPer400Years * 4
+    //  Number of days from 1/1/0001 to 12/31/1969
+    //
+    private static let DaysTo1899: Int = ((DaysPer400Years * 4) + (DaysPer100Years * 3)) - 367
+    //  719,162
+    //  Number of days from 1/1/0001 to 12/31/9999
+    //
+    internal static let DaysTo1970: Int = (DaysPer400Years * 4) + (DaysPer100Years * 3) + (DaysPer4Years * 17) + DaysPerYear
+    //  3652059
+    //
+
+    // Converts the DateTime instance into an OLE Automation compatible
+    //  double date.
+    func ToOADate() -> Double {
+        return DateTime.TicksToOADate(Ticks)
+    }
+
     // This function is duplicated in COMDateTime.cpp
-    /*
     private static func TicksToOADate(_ value: Int) -> Double {
         if value == 0 {
             return 0.0
@@ -483,7 +547,6 @@ public extension DateTime {
         }
         return Double(millis) / Double(MillisPerDay)
     }
- */
 
     func Subtract(_ value : DateTime) -> TimeSpan{
         return TimeSpan(interval: Double(self.Ticks - value.Ticks))
