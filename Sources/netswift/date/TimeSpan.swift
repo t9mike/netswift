@@ -9,11 +9,7 @@
 import Foundation
 
 public struct TimeSpan {
-    var Ticks: Double {
-        get { return self.getTicksFromUnits(days: Double(_days), hours: Double(_hours), minutes: Double(_minutes), seconds: Double(_seconds), milliseconds: Double(_milliseconds), nanoseconds: Double(_nanoseconds))
-        }
-    }
-    
+    public private(set) var Interval : TimeInterval = 0
     private var _days: Int = 0
     private var _hours: Int = 0
     private var _minutes: Int = 0
@@ -22,20 +18,20 @@ public struct TimeSpan {
     private var _nanoseconds: Int = 0
     
     public init(interval: TimeInterval){
-        self.popullateUnits(ticks: interval)
+        self.popullateUnits(interval: interval)
     }
     
     // With this initializer, days=1.1 would mean 1.1*24*60*60 seconds, etc.
     public init(days: Double = 0, hours: Double = 0, minutes: Double = 0, seconds: Double = 0, milliseconds: Double = 0, nanoseconds: Double = 0){
-        self.popullateUnits(ticks: getTicksFromUnits(days: days, hours: hours, minutes: minutes, seconds: seconds, milliseconds: milliseconds, nanoseconds: nanoseconds))
+        self.popullateUnits(interval: getSecondsFromUnits(days: days, hours: hours, minutes: minutes, seconds: seconds, milliseconds: milliseconds, nanoseconds: nanoseconds))
     }
 
     public init(days: Int = 0, hours: Int = 0, minutes: Int = 0, seconds: Int = 0, milliseconds: Int = 0, nanoseconds: Int = 0){
-        self.popullateUnits(ticks: getTicksFromUnits(days: Double(days), hours: Double(hours), minutes: Double(minutes), seconds: Double(seconds), milliseconds: Double(milliseconds), nanoseconds: Double(nanoseconds)))
+        self.popullateUnits(interval: getSecondsFromUnits(days: Double(days), hours: Double(hours), minutes: Double(minutes), seconds: Double(seconds), milliseconds: Double(milliseconds), nanoseconds: Double(nanoseconds)))
     }
 
     public func Absolute() -> TimeSpan {
-        return TimeSpan(interval: Math.Abs(Ticks))
+        return TimeSpan(interval: Math.Abs(Interval))
     }
 
     public static var Zero : TimeSpan {
@@ -70,25 +66,21 @@ extension TimeSpan {
     public var Nanoseconds: Int {
         return _nanoseconds
     }
-    
-    public var Interval: TimeInterval {
-        return Ticks
-    }
-    
+        
     public var TotalSeconds: Double {
         return self.Interval
     }
     
     public var TotalMinutes: Double {
-        return self.Interval / TimeSpan.TICKS_IN_MINUTE
+        return self.Interval / TimeSpan.INTERVALS_IN_MINUTE
     }
     
     public var TotalHours: Double {
-        return self.Interval / TimeSpan.TICKS_IN_HOUR
+        return self.Interval / TimeSpan.INTERVALS_IN_HOUR
     }
     
     public var TotalDays: Double {
-        return self.Interval / TimeSpan.TICKS_IN_DAY
+        return self.Interval / TimeSpan.INTERVALS_IN_DAY
     }
 }
 
@@ -168,12 +160,13 @@ extension TimeSpan {
     internal static let MINUTES_IN_HOUR: Double = 60
     internal static let HOURS_IN_DAY: Double = 24
     
-    static let TICKS_IN_SECOND: Double = 1
-    static let TICKS_IN_MINUTE: Double = TimeSpan.TICKS_IN_SECOND * TimeSpan.SECONDS_IN_MINUTE
-    static let TICKS_IN_HOUR: Double = TimeSpan.TICKS_IN_MINUTE * TimeSpan.MINUTES_IN_HOUR
-    static let TICKS_IN_DAY: Double = TimeSpan.TICKS_IN_HOUR * TimeSpan.HOURS_IN_DAY
-    static let TICKS_IN_MILLISECOND: Double = TimeSpan.TICKS_IN_SECOND / TimeSpan.MILLISECONDS_IN_SECOND
-    static let TICKS_IN_NANOSECOND: Double = TimeSpan.TICKS_IN_MILLISECOND / TimeSpan.NANOSECONDS_IN_MILLISECOND
+    // Swift time spans are in Interval = fractional seconds
+    static let INTERVALS_IN_SECOND: Double = 1
+    static let INTERVALS_IN_MINUTE: Double = TimeSpan.INTERVALS_IN_SECOND * TimeSpan.SECONDS_IN_MINUTE
+    static let INTERVALS_IN_HOUR: Double = TimeSpan.INTERVALS_IN_MINUTE * TimeSpan.MINUTES_IN_HOUR
+    static let INTERVALS_IN_DAY: Double = TimeSpan.INTERVALS_IN_HOUR * TimeSpan.HOURS_IN_DAY
+    static let INTERVALS_IN_MILLISECOND: Double = TimeSpan.INTERVALS_IN_SECOND / TimeSpan.MILLISECONDS_IN_SECOND
+    static let INTERVALS_IN_NANOSECOND: Double = TimeSpan.INTERVALS_IN_MILLISECOND / TimeSpan.NANOSECONDS_IN_MILLISECOND
 }
 
 //MARK: PRIVATE TIMESPAN HELPER METHODS
@@ -185,28 +178,29 @@ private extension TimeSpan {
         return (whole, reminder)
     }
     
-    private mutating func popullateUnits(ticks: Double) {
-        let days = TimeSpan.GetUnitsAndReminder(ticks, devisionUnit: TimeSpan.TICKS_IN_DAY)
+    private mutating func popullateUnits(interval: Double) {
+        Interval = interval;
+        let days = TimeSpan.GetUnitsAndReminder(interval, devisionUnit: TimeSpan.INTERVALS_IN_DAY)
         _days = days.whole
-        let hours = TimeSpan.GetUnitsAndReminder(days.reminder, devisionUnit: TimeSpan.TICKS_IN_HOUR)
+        let hours = TimeSpan.GetUnitsAndReminder(days.reminder, devisionUnit: TimeSpan.INTERVALS_IN_HOUR)
         _hours = hours.whole
-        let minutes = TimeSpan.GetUnitsAndReminder(hours.reminder, devisionUnit: TimeSpan.TICKS_IN_MINUTE)
+        let minutes = TimeSpan.GetUnitsAndReminder(hours.reminder, devisionUnit: TimeSpan.INTERVALS_IN_MINUTE)
         _minutes = minutes.whole
-        let seconds = TimeSpan.GetUnitsAndReminder(minutes.reminder, devisionUnit: TimeSpan.TICKS_IN_SECOND)
+        let seconds = TimeSpan.GetUnitsAndReminder(minutes.reminder, devisionUnit: TimeSpan.INTERVALS_IN_SECOND)
         _seconds = seconds.whole
-        let milliseconds = TimeSpan.GetUnitsAndReminder(seconds.reminder, devisionUnit: TimeSpan.TICKS_IN_MILLISECOND)
+        let milliseconds = TimeSpan.GetUnitsAndReminder(seconds.reminder, devisionUnit: TimeSpan.INTERVALS_IN_MILLISECOND)
         _milliseconds = milliseconds.whole
-        let nanoseconds = TimeSpan.GetUnitsAndReminder(milliseconds.reminder, devisionUnit: TimeSpan.TICKS_IN_NANOSECOND)
+        let nanoseconds = TimeSpan.GetUnitsAndReminder(milliseconds.reminder, devisionUnit: TimeSpan.INTERVALS_IN_NANOSECOND)
         _nanoseconds = nanoseconds.whole
     }
     
-    private func getTicksFromUnits(days: Double = 0, hours: Double = 0, minutes: Double = 0, seconds: Double = 0, milliseconds: Double = 0, nanoseconds: Double = 0) -> Double {
-        return days * TimeSpan.TICKS_IN_DAY
-            + hours * TimeSpan.TICKS_IN_HOUR
-            + minutes * TimeSpan.TICKS_IN_MINUTE
-            + seconds * TimeSpan.TICKS_IN_SECOND
-            + milliseconds * TimeSpan.TICKS_IN_MILLISECOND
-            + nanoseconds * TimeSpan.TICKS_IN_NANOSECOND
+    private func getSecondsFromUnits(days: Double = 0, hours: Double = 0, minutes: Double = 0, seconds: Double = 0, milliseconds: Double = 0, nanoseconds: Double = 0) -> Double {
+        return days * TimeSpan.INTERVALS_IN_DAY
+            + hours * TimeSpan.INTERVALS_IN_HOUR
+            + minutes * TimeSpan.INTERVALS_IN_MINUTE
+            + seconds * TimeSpan.INTERVALS_IN_SECOND
+            + milliseconds * TimeSpan.INTERVALS_IN_MILLISECOND
+            + nanoseconds * TimeSpan.INTERVALS_IN_NANOSECOND
     }
 }
 

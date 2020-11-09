@@ -63,11 +63,11 @@ public struct DateTime : Hashable,CustomStringConvertible {
     }
 
     public init(epoch: Double, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
-        self.init(interval: epoch, kind: kind, intervalSince: DateTime.TICKS_BETWEEN_REFERENCEZERO_AND_EPOCHZERO_IN_SECONDS, weekStarts: weekStarts)
+        self.init(interval: epoch, kind: kind, intervalSince: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_EPOCHZERO, weekStarts: weekStarts)
     }
     
     public init(ldap: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
-        self.init(ticks: ldap, kind: kind, interval: DateTime.TICKS_BETWEEN_REFERENCEZERO_AND_LDAPZERO_IN_SECONDS, weekStarts: weekStarts)
+        self.init(ticks: ldap, kind: kind, interval: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_LDAPZERO, weekStarts: weekStarts)
     }
 
     public init(ticks: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
@@ -237,7 +237,7 @@ public extension DateTime {
      - Returns: Double in second
      */
     var LDAP: Int {
-        return Int((_date.timeIntervalSinceReferenceDate + DateTime.TICKS_BETWEEN_REFERENCEZERO_AND_LDAPZERO_IN_SECONDS) * DateTime.LDAP_TICKS_IN_SECOND)
+        return Int((_date.timeIntervalSinceReferenceDate + DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_LDAPZERO) * DateTime.LDAP_TICKS_IN_SECOND)
     }
 
     /**
@@ -491,7 +491,7 @@ public extension DateTime {
     
     // TODO: add test
     func Subtract(_ value : TimeSpan ) -> DateTime {
-        return self.AddInterval(-value.Ticks)
+        return self.AddInterval(-value.Interval)
    }
 
     func Add(_ value : TimeSpan ) -> DateTime {
@@ -508,8 +508,8 @@ internal extension DateTime {
     static let NANOSECONDS_IN_MILLISECOND: Int = 1000000
 
     static let TICKS_BETWEEN_REFERENCEZERO_AND_DTZERO_IN_SECONDS: Double = 63113904000
-    static let TICKS_BETWEEN_REFERENCEZERO_AND_EPOCHZERO_IN_SECONDS: Double = 978307200
-    static let TICKS_BETWEEN_REFERENCEZERO_AND_LDAPZERO_IN_SECONDS: Double = 12622780800
+    static let SECONDS_BETWEEN_REFERENCEZERO_AND_EPOCHZERO: Double = 978307200
+    static let SECONDS_BETWEEN_REFERENCEZERO_AND_LDAPZERO: Double = 12622780800
 }
 
 //MARK: PRIVATE DATETIME MEMBERS

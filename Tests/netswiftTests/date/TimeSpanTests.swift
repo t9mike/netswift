@@ -21,29 +21,29 @@ class TimeSpanTests: XCTestCase {
         super.tearDown()
     }
 
-    func test_TicksInSecond_Returns_1() {
-        XCTAssertEqual(TimeSpan.TICKS_IN_SECOND, 1)
+    func test_SecondsInSecond_Returns_1() {
+        XCTAssertEqual(TimeSpan.INTERVALS_IN_SECOND, 1)
         
     }
     
-    func test_TicksInMinute_Returns_60() {
-        XCTAssertEqual(TimeSpan.TICKS_IN_MINUTE, 60)
+    func test_SecondsInMinute_Returns_60() {
+        XCTAssertEqual(TimeSpan.INTERVALS_IN_MINUTE, 60)
     }
     
-    func test_TicksInHour_Returns_3600() {
-        XCTAssertEqual(TimeSpan.TICKS_IN_HOUR, 3600)
+    func test_SecondsInHour_Returns_3600() {
+        XCTAssertEqual(TimeSpan.INTERVALS_IN_HOUR, 3600)
     }
     
-    func test_TicksInDay_Returns_86400() {
-        XCTAssertEqual(TimeSpan.TICKS_IN_DAY, 86400)
+    func test_SecondsInDay_Returns_86400() {
+        XCTAssertEqual(TimeSpan.INTERVALS_IN_DAY, 86400)
     }
     
-    func test_TicksInMillisecond_Returns_0DOT001() {
-        XCTAssertEqual(TimeSpan.TICKS_IN_MILLISECOND, 0.001)
+    func test_SecondsInMillisecond_Returns_0DOT001() {
+        XCTAssertEqual(TimeSpan.INTERVALS_IN_MILLISECOND, 0.001)
     }
     
-    func test_TicksInNanosecond_Returns_0DOT000000001() {
-        XCTAssertEqual(TimeSpan.TICKS_IN_NANOSECOND, 0.000000001)
+    func test_SecondsInNanosecond_Returns_0DOT000000001() {
+        XCTAssertEqual(TimeSpan.INTERVALS_IN_NANOSECOND, 0.000000001)
     }
     
     func test_Tick86400_Returns_1_day() {
