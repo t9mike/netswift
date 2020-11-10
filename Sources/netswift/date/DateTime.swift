@@ -14,8 +14,8 @@ public struct DateTime : Hashable,CustomStringConvertible {
     internal var _date: NSDate
     private var _kind: DateTimeKind = .Unspecified
     private var _weekStarts: DayOfWeeks = .Sunday
-    
-    
+        
+    /// The timezone based on Kind: UTC or user's current timezone
     public private(set) var Timezone : TimeZone
 
     public init(year: Int = 2001, month: Int = 1, day: Int = 1, hour: Int = 0, minute: Int = 0, second: Int = 0, millisecond: Int = 0, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
@@ -401,10 +401,9 @@ public extension DateTime {
     static func IsLeapYear(_ year : Int) -> Bool {
         return (( year % 100 != 0)) && (year % 4 == 0) || year % 400 == 0
     }
-
+    
     func IsDaylightSavingTime() -> Bool {
-        let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-        return timeZone.isDaylightSavingTime(for: _date as Date)
+        return Timezone.isDaylightSavingTime(for: _date as Date)
     }
     
     func Equals(_ dateTime: DateTime) -> Bool {
@@ -416,6 +415,7 @@ public extension DateTime {
     
     static func Parse(_ dateString: String, _ format: String, _ kind: DateTimeKind = .Local, _ weekStarts: DayOfWeeks = .Sunday) -> DateTime? {
         let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = dateTimeKindToTimeZone(kind)
         dateFormatter.dateFormat = format
         if let nsDate = dateFormatter.date(from: dateString) {
             return DateTime(nsdate: nsDate as NSDate, kind: kind, weekStarts: weekStarts)
@@ -426,6 +426,7 @@ public extension DateTime {
     static func Parse(_ dateString: String, _ format: DateTimeFormat, _ kind: DateTimeKind = .Local, _ weekStarts: DayOfWeeks = .Sunday) -> DateTime? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.rawValue
+        dateFormatter.timeZone = dateTimeKindToTimeZone(kind)
         if let nsDate = dateFormatter.date(from: dateString) {
             return DateTime(nsdate: nsDate as NSDate, kind: kind, weekStarts: weekStarts)
         }
@@ -435,18 +436,21 @@ public extension DateTime {
     func ToString(_ format: DateTimeFormat = .FULL) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.rawValue
+        dateFormatter.timeZone = Timezone
         return dateFormatter.string(from: _date as Date)
     }
     
     func ToString(_ format: DateFormatter.Style) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = format
+        dateFormatter.timeZone = Timezone
         return dateFormatter.string(from: _date as Date)
     }
     
     func ToString(_ format: String) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format
+        dateFormatter.timeZone = Timezone
         return dateFormatter.string(from: _date as Date)
     }
     
