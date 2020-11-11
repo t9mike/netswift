@@ -10,7 +10,8 @@ import Foundation
 
 //MARK: INITIALISERS AND PRIVATE MEMBERS
 
-public struct DateTime : Hashable,CustomStringConvertible {
+public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConvertible {
+    
     internal var _date: NSDate
     private var _kind: DateTimeKind = .Unspecified
     private var _weekStarts: DayOfWeeks = .Sunday
@@ -118,6 +119,10 @@ public struct DateTime : Hashable,CustomStringConvertible {
     
     public var description: String {
         return ToString("yyyy-MM-dd HH:mm:ss.SSS zzz")
+    }
+
+    public var debugDescription: String {
+        return description
     }
 
 }
