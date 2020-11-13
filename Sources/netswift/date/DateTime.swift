@@ -571,7 +571,7 @@ public extension DateTime {
     }
 
     func Subtract(_ value : DateTime) -> TimeSpan{
-        return TimeSpan(interval: Double(self.TicksUTC - value.TicksUTC))
+        return TimeSpan(interval: Double(self.IntervalUTC - value.IntervalUTC))
     }
     
     // TODO: add test
