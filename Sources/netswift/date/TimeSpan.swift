@@ -28,9 +28,9 @@ public struct TimeSpan : CustomStringConvertible
             tos += String(Days.magnitude)
             tos += "."
         }
-        tos += "\(String(format: "%02", Hours.magnitude)):\(String(format: "%02", Minutes.magnitude)):\(String(format: "%02", Seconds.magnitude))"
+        tos += "\(String(format: "%02d", Hours.magnitude)):\(String(format: "%02d", Minutes.magnitude)):\(String(format: "%02d", Seconds.magnitude))"
         if Milliseconds != 0 {
-            tos += "." + String(format: "%3", Milliseconds.magnitude);
+            tos += "." + String(format: "%3d", Milliseconds.magnitude);
         }
         return tos
     }
