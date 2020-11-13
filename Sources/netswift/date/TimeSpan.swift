@@ -8,7 +8,8 @@
 
 import Foundation
 
-public struct TimeSpan {
+public struct TimeSpan : CustomStringConvertible
+{
     public private(set) var Interval : TimeInterval = 0
     private var _days: Int = 0
     private var _hours: Int = 0
@@ -16,6 +17,23 @@ public struct TimeSpan {
     private var _seconds: Int = 0
     private var _milliseconds: Int = 0
     private var _nanoseconds: Int = 0
+    
+    public var description: String
+    {
+        var tos = ""
+        if Interval < 0 {
+            tos += "-"
+        }
+        if Days != 0 {
+            tos += String(Days.magnitude)
+            tos += "."
+        }
+        tos += "\(String(format: "%02", Hours.magnitude)):\(String(format: "%02", Minutes.magnitude)):\(String(format: "%02", Seconds.magnitude))"
+        if Milliseconds != 0 {
+            tos += "." + String(format: "%3", Milliseconds.magnitude);
+        }
+        return tos
+    }
     
     public init(interval: TimeInterval){
         self.popullateUnits(interval: interval)
