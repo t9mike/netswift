@@ -340,7 +340,7 @@ public extension DateTime {
 //        self.AddMutatingInterval(timeSpan.Interval)
 //    }
     
-    /// .NET DateTime scheme: ultimately just add exact seconds
+    /// .NET DateTime scheme: ultimately just add fractional seconds
     func AddTimeSpan(_ timeSpan: TimeSpan) -> DateTime {
         return self.AddInterval(timeSpan.Interval)
     }
@@ -358,12 +358,12 @@ public extension DateTime {
         return AddComponents(component)
     }
 
-    /// .NET DateTime scheme: ultimately just add exact seconds
+    /// .NET DateTime scheme: ultimately just add fractional seconds
     func AddDays(_ days: Double) -> DateTime {
         return AddSeconds(days*24*60*60)
     }
 
-    /// .NET DateTime scheme: ultimately just add exact seconds
+    /// .NET DateTime scheme: ultimately just add seconds
     func AddDays(_ days: Int) -> DateTime {
         return AddDays(Double(days))
     }
@@ -375,12 +375,12 @@ public extension DateTime {
         return AddComponents(component)
     }
 
-    /// .NET DateTime scheme: ultimately just add exact seconds
+    /// .NET DateTime scheme: ultimately just add fractional seconds
     func AddHours(_ hours: Double) -> DateTime {
         return AddSeconds(hours*60*60)
     }
 
-    /// .NET DateTime scheme: ultimately just add exact seconds
+    /// .NET DateTime scheme: ultimately just add seconds
     func AddHours(_ hours: Int) -> DateTime {
         return AddHours(Double(hours))
     }
@@ -392,12 +392,12 @@ public extension DateTime {
         return AddComponents(component)
     }
 
-    /// .NET DateTime scheme: ultimately just add exact seconds
+    /// .NET DateTime scheme: ultimately just add fractional seconds
     func AddMinutes(_ minutes: Double) -> DateTime {
         return AddSeconds(minutes*60)
     }
 
-    /// .NET DateTime scheme: ultimately just add exact seconds
+    /// .NET DateTime scheme: ultimately just add seconds
     func AddMinutes(_ minutes: Int) -> DateTime {
         return AddMinutes(Double(minutes))
     }
@@ -409,12 +409,12 @@ public extension DateTime {
         return AddComponents(component)
     }
 
-    /// Equivalent to AddInterval(): add exact seconds equivalent to .NET DateTime scheme
+    /// Equivalent to AddInterval(): add fractional seconds equivalent to .NET DateTime scheme
     func AddSeconds(_ seconds: Double) -> DateTime {
         return AddInterval(seconds)
     }
 
-    /// Equivalent to AddInterval(): add exact seconds equivalent to .NET DateTime scheme
+    /// Equivalent to AddInterval(): add seconds equivalent to .NET DateTime scheme
     func AddSeconds(_ seconds: Int) -> DateTime {
         return AddSeconds(Double(seconds))
     }
@@ -424,6 +424,16 @@ public extension DateTime {
         var component = DateComponents()
         component.nanosecond = milliseconds * DateTime.NANOSECONDS_IN_MILLISECOND
         return AddComponents(component)
+    }
+
+    /// .NET DateTime scheme: ultimately just add fractional seconds
+    func AddMilliseconds(_ milliseconds: Double) -> DateTime {
+        return AddSeconds(Double(milliseconds)/1000.0)
+    }
+
+    /// .NET DateTime scheme: ultimately just add fractional seconds
+    func AddMilliseconds(_ milliseconds: Int) -> DateTime {
+        return AddMilliseconds(Double(milliseconds))
     }
 
     /// .NET DateTime scheme: ultimately just add exact seconds
