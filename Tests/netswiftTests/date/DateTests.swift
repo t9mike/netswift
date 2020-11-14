@@ -256,7 +256,7 @@ class Date_Tests: XCTestCase {
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
         let originalInterval = dt.IntervalUTC
                 
-        let dt2 = dt.AddDays(1)
+        let dt2 = dt.AddDaysComponents(1)
         XCTAssertEqual(originalInterval, dt2.IntervalUTC - interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
@@ -279,7 +279,7 @@ class Date_Tests: XCTestCase {
         let interval = TimeSpan(hours: 1).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
         let originalInterval = dt.IntervalUTC
-        let dt2 = dt.AddHours(1)
+        let dt2 = dt.AddHoursComponent(1)
         XCTAssertEqual(originalInterval, dt2.IntervalUTC - interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
@@ -294,7 +294,7 @@ class Date_Tests: XCTestCase {
         let interval = TimeSpan(minutes: 1).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
         let originalInterval = dt.IntervalUTC
-        let dt2 = dt.AddMinutes(1)
+        let dt2 = dt.AddMinutesComponent(1)
         XCTAssertEqual(originalInterval, dt2.IntervalUTC - interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
@@ -309,7 +309,7 @@ class Date_Tests: XCTestCase {
         let interval = TimeSpan(seconds: 47).Interval
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
         let originalInterval = dt.IntervalUTC
-        let dt2 = dt.AddSeconds(47)
+        let dt2 = dt.AddSecondsComponent(47)
         XCTAssertEqual(originalInterval, dt2.IntervalUTC - interval)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)
@@ -323,7 +323,7 @@ class Date_Tests: XCTestCase {
     func test_AddMilliseconds() {
         let dt = DateTime(year: 2001, month: 12, day: 5, hour: 16, minute: 42, second: 11, millisecond: 500, kind: .Utc)
         let originalInterval = dt.IntervalUTC
-        let dt2 = dt.AddMilliseconds(500)
+        let dt2 = dt.AddMillisecondsComponents(500)
         XCTAssertEqual(originalInterval, dt2.IntervalUTC - 0.5)
         XCTAssertEqual(dt2.Year, 2001)
         XCTAssertEqual(dt2.Month, 12)

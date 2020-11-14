@@ -340,65 +340,98 @@ public extension DateTime {
 //        self.AddMutatingInterval(timeSpan.Interval)
 //    }
     
+    /// .NET DateTime scheme: ultimately just add exact seconds
     func AddTimeSpan(_ timeSpan: TimeSpan) -> DateTime {
         return self.AddInterval(timeSpan.Interval)
     }
 
+    /// Uses Swift Calendar rules.
     func AddComponents(_ components : DateComponents) -> DateTime {
-        let date = Components.calendar?.date(byAdding: components, to: _date as Date)
+        let date = Components.calendar!.date(byAdding: components, to: _date as Date)
         return self.withNewDate(date!)
     }
     
-    func AddDays(_ days: Int) -> DateTime {
+    /// Uses Swift Calendar rules.
+    func AddDaysComponents(_ days: Int) -> DateTime {
         var component = DateComponents()
         component.day = days
         return AddComponents(component)
     }
 
-    /// Rounds to integral seconds
+    /// .NET DateTime scheme: ultimately just add exact seconds
     func AddDays(_ days: Double) -> DateTime {
-        return AddSeconds((days*24*60*60).roundToInt())
+        return AddSeconds(days*24*60*60)
     }
 
-    func AddHours(_ hours: Int) -> DateTime {
+    /// .NET DateTime scheme: ultimately just add exact seconds
+    func AddDays(_ days: Int) -> DateTime {
+        return AddDays(Double(days))
+    }
+    
+    /// Uses Swift Calendar rules.
+    func AddHoursComponent(_ hours: Int) -> DateTime {
         var component = DateComponents()
         component.hour = hours
         return AddComponents(component)
     }
 
-    /// Rounds to integral seconds
+    /// .NET DateTime scheme: ultimately just add exact seconds
     func AddHours(_ hours: Double) -> DateTime {
-        return AddSeconds((hours*60*60).roundToInt())
+        return AddSeconds(hours*60*60)
     }
-    
-    func AddMinutes(_ minutes: Int) -> DateTime {
+
+    /// .NET DateTime scheme: ultimately just add exact seconds
+    func AddHours(_ hours: Int) -> DateTime {
+        return AddHours(Double(hours))
+    }
+
+    /// Uses Swift Calendar rules.
+    func AddMinutesComponent(_ minutes: Int) -> DateTime {
         var component = DateComponents()
         component.minute = minutes
         return AddComponents(component)
     }
 
-    /// Rounds to integral seconds
+    /// .NET DateTime scheme: ultimately just add exact seconds
     func AddMinutes(_ minutes: Double) -> DateTime {
-        return AddSeconds((minutes*60).roundToInt())
+        return AddSeconds(minutes*60)
     }
 
-    func AddSeconds(_ seconds: Int) -> DateTime {
+    /// .NET DateTime scheme: ultimately just add exact seconds
+    func AddMinutes(_ minutes: Int) -> DateTime {
+        return AddMinutes(Double(minutes))
+    }
+
+    /// Uses Swift Calendar rules.
+    func AddSecondsComponent(_ seconds: Int) -> DateTime {
         var component = DateComponents()
         component.second = seconds
         return AddComponents(component)
     }
-    
-    func AddMilliseconds(_ milliseconds: Int) -> DateTime {
+
+    /// Equivalent to AddInterval(): add exact seconds equivalent to .NET DateTime scheme
+    func AddSeconds(_ seconds: Double) -> DateTime {
+        return AddInterval(seconds)
+    }
+
+    /// Equivalent to AddInterval(): add exact seconds equivalent to .NET DateTime scheme
+    func AddSeconds(_ seconds: Int) -> DateTime {
+        return AddSeconds(Double(seconds))
+    }
+
+    // Uses Swift Calendar rules.
+    func AddMillisecondsComponents(_ milliseconds: Int) -> DateTime {
         var component = DateComponents()
         component.nanosecond = milliseconds * DateTime.NANOSECONDS_IN_MILLISECOND
         return AddComponents(component)
     }
 
+    /// .NET DateTime scheme: ultimately just add exact seconds
     func AddInterval(_ interval: TimeInterval) -> DateTime {
         let date = self._date.addingTimeInterval(interval)
         return self.withNewDate(date as Date)
     }
-    
+
     func IsLeapYear() -> Bool {
         return DateTime.IsLeapYear(self.Year)
     }
