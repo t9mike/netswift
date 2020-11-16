@@ -9,6 +9,7 @@
 public enum DateTimeFormat: String {
     case FULL = "yyyy-MM-dd HH:mm:ss.SSS",
          LONG = "yyyy-MM-dd HH:mm:ss",
+         Filename = "yyyy.MM.dd-HH.mm.ss",
          ShortDate = "dd/MM/yy",
          ShortTime = "h:mm a",
          ShortTimeM = "HH:mm",
