@@ -19,6 +19,8 @@ public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConve
     /// The timezone based on Kind: UTC or user's current timezone
     public private(set) var Timezone : TimeZone
 
+    private var Components: DateComponents
+
     public init(year: Int = 2001, month: Int = 1, day: Int = 1, hour: Int = 0, minute: Int = 0, second: Int = 0, millisecond: Int = 0, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         _weekStarts  = weekStarts
         let yearRanged = Math.MoveToRange(x: year, min: -9999, max: 9999)!
@@ -38,6 +40,7 @@ public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConve
             nanosecond: nanosecond,
             timeZone: Timezone)! as NSDate
         _kind = kind
+        self.Components = DateTime.makeComponents(_date, _kind)
     }
 
     public static var MinValue : DateTime
@@ -61,6 +64,8 @@ public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConve
         calendar.timeZone = Timezone
         _date = nsdate
         _kind = kind
+//        _Components = nil
+        self.Components = DateTime.makeComponents(_date, _kind)
     }
 
     public init(date: Date, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday)
@@ -91,6 +96,7 @@ public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConve
         calendar.timeZone = Timezone
         _date = NSDate(timeIntervalSinceReferenceDate: interval + intervalSince)
         _kind = kind
+        self.Components = DateTime.makeComponents(_date, _kind)
     }
 
     private init(ticks: Int, kind: DateTimeKind, interval: Double, weekStarts: DayOfWeeks) {
@@ -100,6 +106,16 @@ public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConve
         calendar.timeZone = Timezone
         _date = NSDate(timeIntervalSinceReferenceDate: Double(ticks) / DateTime.LDAP_TICKS_IN_SECOND - interval)
         _kind = kind
+        self.Components = DateTime.makeComponents(_date, _kind)
+    }
+    
+    private static func makeComponents(_ date : NSDate, _ kind: DateTimeKind) -> DateComponents
+    {
+        let timeZone = DateTime.dateTimeKindToTimeZone(kind)
+        var calendar = NSCalendar.current
+        calendar.timeZone = timeZone
+//        print("calendar=\(calendar), timeZone=\(timeZone), _date=\(date)")
+        return calendar.dateComponents(in: timeZone, from: date as Date)
     }
     
     /// A signed number indicating the relative values of this instance and value.
@@ -275,13 +291,6 @@ public extension DateTime {
      Read-only: Returns NSDateComponent belonging to Date
      - Returns: NSDateComponent
      */
-    var Components: DateComponents {
-        let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-        var calendar = NSCalendar.current
-        calendar.timeZone = timeZone
-        return calendar.dateComponents(in: timeZone, from: _date as Date)
-    }
-    
     var Date: DateTime {
         return DateTime(year: self.Year, month: self.Month, day: self.Day, kind: self._kind)
     }
@@ -332,9 +341,10 @@ public extension DateTime {
     {
         var copy = self
         copy._date = date as NSDate
+        copy.Components = DateTime.makeComponents(copy._date, _kind)
         return copy
     }
-    
+        
     // Why is this needed? DateTime is a struct
 //    func copy() -> DateTime {
 //        let nsDate: NSDate = self._date.copy() as! NSDate
