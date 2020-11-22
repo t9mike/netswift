@@ -63,6 +63,11 @@ public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConve
         _kind = kind
     }
 
+    public init(date: Date, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday)
+    {
+        self.init(nsdate: date as NSDate)
+    }
+    
     public init(interval: Double, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         self.init(interval: interval, kind: kind, intervalSince: 0, weekStarts: weekStarts)
     }
