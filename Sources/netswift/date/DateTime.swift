@@ -10,7 +10,7 @@ import Foundation
 
 //MARK: INITIALISERS AND PRIVATE MEMBERS
 
-public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConvertible {
+public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStringConvertible {
     
     internal var _date: NSDate
     private var _kind: DateTimeKind = .Unspecified
@@ -20,6 +20,25 @@ public struct DateTime : Hashable,CustomStringConvertible,CustomDebugStringConve
     public private(set) var Timezone : TimeZone
 
     private var Components: DateComponents
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(self.ToJavaScriptTicks())
+    }
+    
+    public init(from decoder: Decoder) throws {
+        do
+        {
+            let container = try decoder.singleValueContainer()
+            let jsTicks = try container.decode(Int.self)
+            let ticks = DateTime.JavaScriptTicksToUniversialTicks(jsTicks)
+            self.init(ticks: ticks, kind:.Utc)
+        } catch
+        {
+            // Default to minimum value
+            self.init(ticks: DateTime.MinValue.Ticks, kind:.Utc)
+        }
+    }
 
     public init(year: Int = 2001, month: Int = 1, day: Int = 1, hour: Int = 0, minute: Int = 0, second: Int = 0, millisecond: Int = 0, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         _weekStarts  = weekStarts
@@ -675,7 +694,7 @@ private extension DateTime {
                 .weekOfYear,
                 .timeZone]
     }
-
+    
     private func addComponents(components: DateComponents) -> NSDate? {
         let calendar = NSCalendar.current
         return calendar.date(byAdding: components, to: _date as Date) as NSDate?
