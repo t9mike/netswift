@@ -257,12 +257,12 @@ public extension DateTime {
     }
 
     /**
-    Read-only: the NSDate core type
+    Read-only: the NSDate core type. Returns NSDate.distantPast if conversion unsupported (impossible?)
      - Returns: **copy** NSDate object
     */
-    func ToNSDate() -> NSDate? {
+    func ToNSDate() -> NSDate {
 
-        return _date.copy() as? NSDate
+        return _date.copy() as? NSDate ?? NSDate.distantPast as NSDate
     }
 
     /**
