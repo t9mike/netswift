@@ -9,7 +9,9 @@ import Foundation
 
 extension DateTime
 {
-    static let InitialJavaScriptDateTicks = 621355968000000000
+    // The JavaScript Date type's origin is the Unix epoch: midnight on 1 January 1970.
+    // The .NET DateTime type's origin is midnight on 1 January 0001.
+    static let InitialJavaScriptDateTicks : Int64 = 621355968000000000
 
     func ToUniversalTicks() -> Int
     {
@@ -19,25 +21,25 @@ extension DateTime
     public func ToJavaScriptTicks() -> Int
     {
         let ticks = self.ToUniversalTicks()
-        return DateTime.UniversialTicksToJavaScriptTicks(ticks);
+        return DateTime.UniversialTicksToJavaScriptTicks(ticks)
     }
 
     static func UniversialTicksToJavaScriptTicks(_ universialTicks : Int) -> Int
     {
-        let javaScriptTicks = (universialTicks - DateTime.InitialJavaScriptDateTicks) / 10000;
-        return javaScriptTicks;
+        let javaScriptTicks = (Int64(universialTicks) - DateTime.InitialJavaScriptDateTicks) / 10000;
+        return Int(javaScriptTicks)
     }
 
     static func JavaScriptTicksToUniversialTicks(_ javaScriptTicks : Int) -> Int
     {
-        let ticks = (javaScriptTicks * 10000) + InitialJavaScriptDateTicks
-        return ticks;
+        let ticks = (Int64(javaScriptTicks) * 10000) + InitialJavaScriptDateTicks
+        return Int(ticks)
     }
 
     public static func FromJavaScriptTicks(_ javaScriptTicks : Int) -> DateTime
     {
         let ticks = JavaScriptTicksToUniversialTicks(javaScriptTicks)
         let dateTime = DateTime(ticks: ticks, kind: .Utc, weekStarts:.Sunday)
-        return dateTime;
+        return dateTime
     }
 }
