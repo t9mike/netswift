@@ -73,21 +73,21 @@ class Date_Tests: XCTestCase {
 
     func test_ToNSDate() {
         let dt: DateTime = DateTime(year: 1255, month: 03, day: 4)
-        XCTAssertNotNil(dt.ToNSDate()! as NSDate)
+        XCTAssertNotNil(dt.ToNSDate() as NSDate)
         let dt2: DateTime = DateTime(year: 1244, month: 02, day: 5, kind: .Utc)
-        XCTAssertNotNil(dt2.ToNSDate()! as NSDate)
+        XCTAssertNotNil(dt2.ToNSDate() as NSDate)
     }
 
     func test_ToNSDate_Into_New_DateObject_Utc() {
         let dt1: DateTime = DateTime(year: 1266, month: 03, day: 5, kind: .Utc)
-        let nsdate: NSDate = dt1.ToNSDate()!
+        let nsdate: NSDate = dt1.ToNSDate()
         let dt2: DateTime = DateTime(nsdate: nsdate)
         XCTAssertNotNil(dt2 as DateTime)
     }
 
     func test_ToNSDate_Into_New_DateObject_Non_Utc() {
         let dt1: DateTime = DateTime(year: 1266, month: 03, day: 5)
-        let nsdate: NSDate = dt1.ToNSDate()!
+        let nsdate: NSDate = dt1.ToNSDate()
         let dt2: DateTime = DateTime(nsdate: nsdate)
         XCTAssertNotNil(dt2 as DateTime)
     }
@@ -270,8 +270,8 @@ class Date_Tests: XCTestCase {
         var c = DateComponents()
 //        c.second = 86400
         c.nanosecond = 86400 * Int(1e9)
-        let d3 = NSCalendar.current.date(byAdding: c, to: dt.ToNSDate()! as Date)
-        print(dt.ToNSDate()!)
+        let d3 = NSCalendar.current.date(byAdding: c, to: dt.ToNSDate() as Date)
+        print(dt.ToNSDate())
         print(d3!)        
     }
     

@@ -79,8 +79,6 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
     public init(nsdate: NSDate, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         _weekStarts = weekStarts
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
-        var calendar = NSCalendar.current
-        calendar.timeZone = Timezone
         _date = nsdate
         _kind = kind
 //        _Components = nil
@@ -111,8 +109,6 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
     private init(interval: Double, kind: DateTimeKind, intervalSince: Double, weekStarts: DayOfWeeks) {
         _weekStarts = weekStarts
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
-        var calendar = NSCalendar.current
-        calendar.timeZone = Timezone
         _date = NSDate(timeIntervalSinceReferenceDate: interval + intervalSince)
         _kind = kind
         self.Components = DateTime.makeComponents(_date, _kind)
@@ -121,8 +117,6 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
     private init(ticks: Int, kind: DateTimeKind, interval: Double, weekStarts: DayOfWeeks) {
         _weekStarts = weekStarts
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
-        var calendar = NSCalendar.current
-        calendar.timeZone = Timezone
         _date = NSDate(timeIntervalSinceReferenceDate: Double(ticks) / DateTime.LDAP_TICKS_IN_SECOND - interval)
         _kind = kind
         self.Components = DateTime.makeComponents(_date, _kind)
@@ -132,7 +126,6 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
     {
         let timeZone = DateTime.dateTimeKindToTimeZone(kind)
         var calendar = NSCalendar.current
-        calendar.timeZone = timeZone
 //        print("calendar=\(calendar), timeZone=\(timeZone), _date=\(date)")
         return calendar.dateComponents(in: timeZone, from: date as Date)
     }
@@ -708,8 +701,6 @@ private extension DateTime {
     /// Return the NSDateComponents
     private var componentsWithTimeZone: DateComponents {
         let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-        var calendar = NSCalendar.current
-        calendar.timeZone = timeZone
         var component = NSCalendar.current.dateComponents(DateTime.componentFlags(), from: _date as Date)
         component.timeZone = timeZone
         return component
