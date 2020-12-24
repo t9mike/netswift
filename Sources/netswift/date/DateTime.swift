@@ -26,6 +26,9 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
         try container.encode(self.ToJavaScriptTicks())
     }
     
+    // NSCalendar.current was expensive in profiling; switch to this global version
+    private static let calendar : Calendar = NSCalendar.autoupdatingCurrent
+    
     public init(from decoder: Decoder) throws {
         do
         {
@@ -62,15 +65,11 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
         self.Components = DateTime.makeComponents(_date, _kind)
     }
 
-    public static var MinValue : DateTime
-    {
-        return DateTime(nsdate: NSDate.distantPast as NSDate)
-    }
+    /// Singleton, lazy created
+    public static let MinValue : DateTime = DateTime(nsdate: NSDate.distantPast as NSDate)
 
-    public static var MaxValue : DateTime
-    {
-        return DateTime(nsdate: NSDate.distantFuture as NSDate)
-    }
+    /// Singleton, lazy created
+    public static let MaxValue : DateTime = DateTime(nsdate: NSDate.distantFuture as NSDate)
 
     public init(_ year: Int, _ month: Int, _ day: Int, _ kind: DateTimeKind = .Local, _ weekStarts: DayOfWeeks = .Sunday) {
         self.init(year: year, month: month, day: day, kind: kind, weekStarts: weekStarts)
@@ -125,7 +124,6 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
     private static func makeComponents(_ date : NSDate, _ kind: DateTimeKind) -> DateComponents
     {
         let timeZone = DateTime.dateTimeKindToTimeZone(kind)
-        var calendar = NSCalendar.current
 //        print("calendar=\(calendar), timeZone=\(timeZone), _date=\(date)")
         return calendar.dateComponents(in: timeZone, from: date as Date)
     }
@@ -343,9 +341,8 @@ public extension DateTime {
         var comp = DateComponents()
         comp.year = Math.MoveToRange(x: year!, min: 1, max: 9999)!
         comp.month = Math.MoveToRange(x: month!, min: 0, max: 12)!
-        let cal = NSCalendar.current
-        let nsdate = cal.date(from: comp)
-        let days = cal.range(of: .day, in: .month, for: nsdate!)
+        let nsdate = calendar.date(from: comp)
+        let days = calendar.range(of: .day, in: .month, for: nsdate!)
         return days?.count
     }
 
@@ -689,19 +686,18 @@ private extension DateTime {
     }
     
     private func addComponents(components: DateComponents) -> NSDate? {
-        let calendar = NSCalendar.current
-        return calendar.date(byAdding: components, to: _date as Date) as NSDate?
+        return DateTime.calendar.date(byAdding: components, to: _date as Date) as NSDate?
     }
 
     /// Retun timeZone sensitive components
     private var components: DateComponents {
-        return NSCalendar.current.dateComponents(DateTime.componentFlags(), from: _date as Date)
+        return DateTime.calendar.dateComponents(DateTime.componentFlags(), from: _date as Date)
     }
 
     /// Return the NSDateComponents
     private var componentsWithTimeZone: DateComponents {
         let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-        var component = NSCalendar.current.dateComponents(DateTime.componentFlags(), from: _date as Date)
+        var component = DateTime.calendar.dateComponents(DateTime.componentFlags(), from: _date as Date)
         component.timeZone = timeZone
         return component
     }
