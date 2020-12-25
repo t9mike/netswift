@@ -10,8 +10,12 @@ import Foundation
 
 //MARK: INITIALISERS AND PRIVATE MEMBERS
 
-public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStringConvertible {
-    
+public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStringConvertible {
+
+    public func hash(into hasher: inout Hasher) {
+        _date.hash(into: &hasher)
+    }
+
     internal var _date: NSDate
     private var _kind: DateTimeKind = .Unspecified
     private var _weekStarts: DayOfWeeks = .Sunday
@@ -19,7 +23,17 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
     /// The timezone based on Kind: UTC or user's current timezone
     public private(set) var Timezone : TimeZone
 
-    private var Components: DateComponents
+    private var Components: DateComponents {
+        get {
+            if (_Components == nil) {
+                let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
+        //        print("calendar=\(calendar), timeZone=\(timeZone), _date=\(date)")
+                _Components = DateTime.calendar.dateComponents(in: timeZone, from: _date as Date)
+            }
+            return _Components!
+        }
+    }
+    private var _Components : DateComponents? = nil
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
@@ -29,7 +43,7 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
     // NSCalendar.current was expensive in profiling; switch to this global version
     private static let calendar : Calendar = NSCalendar.autoupdatingCurrent
     
-    public init(from decoder: Decoder) throws {
+    required public convenience init(from decoder: Decoder) throws {
         do
         {
             let container = try decoder.singleValueContainer()
@@ -62,7 +76,6 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
             nanosecond: nanosecond,
             timeZone: Timezone)! as NSDate
         _kind = kind
-        self.Components = DateTime.makeComponents(_date, _kind)
     }
 
     /// Singleton, lazy created
@@ -71,7 +84,7 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
     /// Singleton, lazy created
     public static let MaxValue : DateTime = DateTime(nsdate: NSDate.distantFuture as NSDate)
 
-    public init(_ year: Int, _ month: Int, _ day: Int, _ kind: DateTimeKind = .Local, _ weekStarts: DayOfWeeks = .Sunday) {
+    public convenience init(_ year: Int, _ month: Int, _ day: Int, _ kind: DateTimeKind = .Local, _ weekStarts: DayOfWeeks = .Sunday) {
         self.init(year: year, month: month, day: day, kind: kind, weekStarts: weekStarts)
     }
     
@@ -80,28 +93,26 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
         _date = nsdate
         _kind = kind
-//        _Components = nil
-        self.Components = DateTime.makeComponents(_date, _kind)
     }
 
-    public init(date: Date, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday)
+    public convenience init(date: Date, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday)
     {
         self.init(nsdate: date as NSDate)
     }
     
-    public init(interval: Double, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
+    public convenience init(interval: Double, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         self.init(interval: interval, kind: kind, intervalSince: 0, weekStarts: weekStarts)
     }
 
-    public init(epoch: Double, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
+    public convenience init(epoch: Double, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         self.init(interval: epoch, kind: kind, intervalSince: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_EPOCHZERO, weekStarts: weekStarts)
     }
     
-    public init(ldap: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
+    public convenience init(ldap: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         self.init(ticks: ldap, kind: kind, interval: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_LDAPZERO, weekStarts: weekStarts)
     }
 
-    public init(ticks: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
+    public convenience init(ticks: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         self.init(ticks: ticks, kind: kind, interval: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_DTZERO, weekStarts: weekStarts)
     }
     
@@ -110,7 +121,6 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
         _date = NSDate(timeIntervalSinceReferenceDate: interval + intervalSince)
         _kind = kind
-        self.Components = DateTime.makeComponents(_date, _kind)
     }
 
     private init(ticks: Int, kind: DateTimeKind, interval: Double, weekStarts: DayOfWeeks) {
@@ -118,16 +128,8 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
         _date = NSDate(timeIntervalSinceReferenceDate: Double(ticks) / DateTime.LDAP_TICKS_IN_SECOND - interval)
         _kind = kind
-        self.Components = DateTime.makeComponents(_date, _kind)
     }
-    
-    private static func makeComponents(_ date : NSDate, _ kind: DateTimeKind) -> DateComponents
-    {
-        let timeZone = DateTime.dateTimeKindToTimeZone(kind)
-//        print("calendar=\(calendar), timeZone=\(timeZone), _date=\(date)")
-        return calendar.dateComponents(in: timeZone, from: date as Date)
-    }
-    
+        
     /// A signed number indicating the relative values of this instance and value.
     ///
     ///     RETURNS
@@ -163,25 +165,25 @@ public struct DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStr
 public extension DateTime {
     /// Get the year component of the date
     var Year: Int {
-        return Components.year!
+            return Components.year!
     }
     /// Get the month component of the date
     var Month: Int {
-        return Components.month!
-    }
+            return Components.month!
+        }
     /// Get the week of the month component of the date
     var WeekOfMonth: Int {
-        return Components.weekOfMonth!
-    }
+            return Components.weekOfMonth!
+        }
     /// Get the week of the month component of the date
     var WeekOfYear: Int {
-        return Components.weekOfYear!
-    }
+            return Components.weekOfYear!
+        }
     /// Get the weekday component of the date
     var Weekday: Int {
-        let computedDaysFromWeekStart = (Components.weekday! + 1 - self._weekStarts.rawValue) % 7
-        return computedDaysFromWeekStart == 0 ? 7 : computedDaysFromWeekStart
-    }
+            let computedDaysFromWeekStart = (Components.weekday! + 1 - self._weekStarts.rawValue) % 7
+            return computedDaysFromWeekStart == 0 ? 7 : computedDaysFromWeekStart
+        }
 
     /// Get the weekday ordinal component of the date
     var WeekdayOrdinal: Int {
@@ -189,34 +191,34 @@ public extension DateTime {
     }
     /// Get the day component of the date
     var Day: Int {
-        return Components.day!
-    }
+            return Components.day!
+        }
     /// Get the hour component of the date
     var Hour: Int {
-        return Components.hour!
-    }
+            return Components.hour!
+        }
     /// Get the minute component of the date
     var Minute: Int {
-        return Components.minute!
-    }
+            return Components.minute!
+        }
     /// Get the second component of the date
     var Second: Int {
-        return Components.second!
-    }
+            return Components.second!
+        }
     /// Get the millisecond component of the Date
     var Millisecond: Int {
-        return Components.nanosecond! / DateTime.NANOSECONDS_IN_MILLISECOND
-    }
+            return Components.nanosecond! / DateTime.NANOSECONDS_IN_MILLISECOND
+        }
     /// Get the era component of the date
     var Era: Int {
-        return Components.era!
-    }
+            return Components.era!
+        }
     /// Get the current month name based upon current locale
     var MonthName: String {
-        let dateFormatter = NSDate.localThreadDateFormatter()
-        dateFormatter.locale = NSLocale.autoupdatingCurrent
-        return dateFormatter.monthSymbols[Month - 1] as String
-    }
+            let dateFormatter = NSDate.localThreadDateFormatter()
+            dateFormatter.locale = NSLocale.autoupdatingCurrent
+            return dateFormatter.monthSymbols[Month - 1] as String
+        }
     /// Get the current weekday name
     var WeekdayName: String {
         let dateFormatter = NSDate.localThreadDateFormatter()
@@ -302,16 +304,16 @@ public extension DateTime {
      - Returns: NSDateComponent
      */
     var Date: DateTime {
-        return DateTime(year: self.Year, month: self.Month, day: self.Day, kind: self._kind)
-    }
+            return DateTime(year: self.Year, month: self.Month, day: self.Day, kind: self._kind)
+        }
     
     var DayOfWeek: DayOfWeeks {
-        return DayOfWeeks(rawValue: Components.weekday!)!
-    }
+            return DayOfWeeks(rawValue: Components.weekday!)!
+        }
     
     var DayOfYear: Int {
-        return (Components.calendar?.ordinality(of: .day, in: .year, for: _date as Date))!
-    }
+            return (Components.calendar?.ordinality(of: .day, in: .year, for: _date as Date))!
+        }
     
     static var Now: DateTime {
         return DateTime(nsdate: NSDate(), kind: .Local)
@@ -322,8 +324,8 @@ public extension DateTime {
     }
     
     var TimeOfDay: TimeSpan {
-        return TimeSpan(hours: self.Hour, minutes: self.Minute, seconds: self.Second, milliseconds: self.Millisecond)
-    }
+            return TimeSpan(hours: self.Hour, minutes: self.Minute, seconds: self.Second, milliseconds: self.Millisecond)
+        }
     
     var WeekStarts: DayOfWeeks {
         get { return _weekStarts }
@@ -348,10 +350,7 @@ public extension DateTime {
 
     internal func withNewDate(_ date : Date) -> DateTime
     {
-        var copy = self
-        copy._date = date as NSDate
-        copy.Components = DateTime.makeComponents(copy._date, _kind)
-        return copy
+        return DateTime(interval: date.timeIntervalSinceReferenceDate, kind: _kind, weekStarts: _weekStarts)
     }
         
     // Why is this needed? DateTime is a struct
