@@ -88,14 +88,14 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
         self.init(year: year, month: month, day: day, kind: kind, weekStarts: weekStarts)
     }
     
-    public init(nsdate: NSDate, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
+    public init(nsdate: NSDate, kind: DateTimeKind = .Utc, weekStarts: DayOfWeeks = .Sunday) {
         _weekStarts = weekStarts
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
         _date = nsdate
         _kind = kind
     }
 
-    public convenience init(date: Date, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday)
+    public convenience init(date: Date, kind: DateTimeKind = .Utc, weekStarts: DayOfWeeks = .Sunday)
     {
         self.init(nsdate: date as NSDate)
     }
