@@ -47,7 +47,7 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
         do
         {
             let container = try decoder.singleValueContainer()
-            let jsTicks = try container.decode(Int.self)
+            let jsTicks = try container.decode(Int64.self)
             let ticks = DateTime.JavaScriptTicksToUniversialTicks(jsTicks)
             self.init(ticks: ticks, kind:.Utc)
         } catch
@@ -108,11 +108,11 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
         self.init(interval: epoch, kind: kind, intervalSince: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_EPOCHZERO, weekStarts: weekStarts)
     }
     
-    public convenience init(ldap: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
+    public convenience init(ldap: Int64, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         self.init(ticks: ldap, kind: kind, interval: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_LDAPZERO, weekStarts: weekStarts)
     }
 
-    public convenience init(ticks: Int, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
+    public convenience init(ticks: Int64, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         self.init(ticks: ticks, kind: kind, interval: DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_DTZERO, weekStarts: weekStarts)
     }
     
@@ -123,7 +123,7 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
         _kind = kind
     }
 
-    private init(ticks: Int, kind: DateTimeKind, interval: Double, weekStarts: DayOfWeeks) {
+    private init(ticks: Int64, kind: DateTimeKind, interval: Double, weekStarts: DayOfWeeks) {
         _weekStarts = weekStarts
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
         _date = NSDate(timeIntervalSinceReferenceDate: Double(ticks) / DateTime.LDAP_TICKS_IN_SECOND - interval)
@@ -295,8 +295,8 @@ public extension DateTime {
      This matches .NET implementation.
      - Returns: Int
      */
-    var Ticks: Int {
-        return Int((self.IntervalUTC + Double(Timezone.secondsFromGMT(for: _date as Date)) + DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_DTZERO) * DateTime.LDAP_TICKS_IN_SECOND)
+    var Ticks: Int64 {
+        return Int64((self.IntervalUTC + Double(Timezone.secondsFromGMT(for: _date as Date)) + DateTime.SECONDS_BETWEEN_REFERENCEZERO_AND_DTZERO) * DateTime.LDAP_TICKS_IN_SECOND)
     }
 
     /**
@@ -545,62 +545,62 @@ public extension DateTime {
         }
     }
     
-    private static let DaysTo10000: Int = (DaysPer400Years * 25) - 366
-    internal static let MinTicks: Int = 0
-    internal static let MaxTicks: Int = (DaysTo10000 * TicksPerDay) - 1
-    private static let MaxMillis: Int = DaysTo10000 * MillisPerDay
-    private static let FileTimeOffset: Int = DaysTo1601 * TicksPerDay
+    private static let DaysTo10000: Int64 = (DaysPer400Years * 25) - 366
+    internal static let MinTicks: Int64 = 0
+    internal static let MaxTicks: Int64 = (DaysTo10000 * TicksPerDay) - 1
+    private static let MaxMillis: Int64 = DaysTo10000 * MillisPerDay
+    private static let FileTimeOffset: Int64 = DaysTo1601 * TicksPerDay
     //  The minimum OA date is 0100/01/01 (Note it's year 100).
     //  The maximum OA date is 9999/12/31
     //
-    private static let DoubleDateOffset: Int = DaysTo1899 * TicksPerDay
+    private static let DoubleDateOffset: Int64 = DaysTo1899 * TicksPerDay
     //  All OA dates must be greater than (not >=) OADateMinAsDouble
     //
-    private static let OADateMinAsTicks: Int = (DaysPer100Years - DaysPerYear) * TicksPerDay
+    private static let OADateMinAsTicks: Int64 = (DaysPer100Years - DaysPerYear) * TicksPerDay
     //  All OA dates must be less than (not <=) OADateMaxAsDouble
     //
     private static let OADateMinAsDouble: Double = -657435.0
     private static let OADateMaxAsDouble: Double = 2958466.0
 
-    private static let TicksPerMillisecond: Int = 10000
-    private static let TicksPerSecond: Int = TicksPerMillisecond * 1000
-    private static let TicksPerMinute: Int = TicksPerSecond * 60
-    private static let TicksPerHour: Int = TicksPerMinute * 60
+    private static let TicksPerMillisecond: Int64 = 10000
+    private static let TicksPerSecond: Int64 = TicksPerMillisecond * 1000
+    private static let TicksPerMinute: Int64 = TicksPerSecond * 60
+    private static let TicksPerHour: Int64 = TicksPerMinute * 60
     //  Number of milliseconds per time unit
     //
-    private static let TicksPerDay: Int = TicksPerHour * 24
-    private static let MillisPerSecond: Int = 1000
-    private static let MillisPerMinute: Int = MillisPerSecond * 60
-    private static let MillisPerHour: Int = MillisPerMinute * 60
+    private static let TicksPerDay: Int64 = TicksPerHour * 24
+    private static let MillisPerSecond: Int64 = 1000
+    private static let MillisPerMinute: Int64 = MillisPerSecond * 60
+    private static let MillisPerHour: Int64 = MillisPerMinute * 60
     //  Number of days in a non-leap year
     //
-    private static let MillisPerDay: Int = MillisPerHour * 24
+    private static let MillisPerDay: Int64 = MillisPerHour * 24
     //  Number of days in 4 years
     //
-    private static let DaysPerYear: Int = 365
+    private static let DaysPerYear: Int64 = 365
     //  1461
     //  Number of days in 100 years
     //
-    private static let DaysPer4Years: Int = (DaysPerYear * 4) + 1
+    private static let DaysPer4Years: Int64 = (DaysPerYear * 4) + 1
     //  36524
     //  Number of days in 400 years
     //
-    private static let DaysPer100Years: Int = (DaysPer4Years * 25) - 1
+    private static let DaysPer100Years: Int64 = (DaysPer4Years * 25) - 1
     //  146097
     //  Number of days from 1/1/0001 to 12/31/1600
     //
-    private static let DaysPer400Years: Int = (DaysPer100Years * 4) + 1
+    private static let DaysPer400Years: Int64 = (DaysPer100Years * 4) + 1
     //  584388
     //  Number of days from 1/1/0001 to 12/30/1899
     //
-    private static let DaysTo1601: Int = DaysPer400Years * 4
+    private static let DaysTo1601: Int64 = DaysPer400Years * 4
     //  Number of days from 1/1/0001 to 12/31/1969
     //
-    private static let DaysTo1899: Int = ((DaysPer400Years * 4) + (DaysPer100Years * 3)) - 367
+    private static let DaysTo1899: Int64 = ((DaysPer400Years * 4) + (DaysPer100Years * 3)) - 367
     //  719,162
     //  Number of days from 1/1/0001 to 12/31/9999
     //
-    internal static let DaysTo1970: Int = (DaysPer400Years * 4) + (DaysPer100Years * 3) + (DaysPer4Years * 17) + DaysPerYear
+    internal static let DaysTo1970: Int64 = (DaysPer400Years * 4) + (DaysPer100Years * 3) + (DaysPer4Years * 17) + DaysPerYear
     //  3652059
     //
 
@@ -611,7 +611,7 @@ public extension DateTime {
     }
 
     // This function is duplicated in COMDateTime.cpp
-    private static func TicksToOADate(_ value: Int) -> Double {
+    private static func TicksToOADate(_ value: Int64) -> Double {
         if value == 0 {
             return 0.0
         }
@@ -626,9 +626,9 @@ public extension DateTime {
         }
         //  Currently, our max date == OA's max date (12/31/9999), so we don't
         //  need an overflow check in that direction.
-        var millis: Int = (value - DoubleDateOffset) / TicksPerMillisecond
+        var millis: Int64 = (value - DoubleDateOffset) / TicksPerMillisecond
         if millis < 0 {
-            let frac: Int = millis % MillisPerDay
+            let frac: Int64 = millis % MillisPerDay
             if frac != 0 {
                 millis = millis - (MillisPerDay + frac) * 2
             }

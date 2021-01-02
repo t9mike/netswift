@@ -126,7 +126,7 @@ extension TimeSpan {
 //MARK: TIMESPAN STATIC METHODS
 
 extension TimeSpan {
-    public static func FromTicks(_ ticks : Int) -> TimeSpan {
+    public static func FromTicks(_ ticks : Int64) -> TimeSpan {
         return TimeSpan(interval: Double(ticks))
     }
 
