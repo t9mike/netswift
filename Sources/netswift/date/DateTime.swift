@@ -26,9 +26,11 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
     private var Components: DateComponents {
         get {
             if (_Components == nil) {
-                let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-        //        print("calendar=\(calendar), timeZone=\(timeZone), _date=\(date)")
+                autoreleasepool {
+                    let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
+            //        print("calendar=\(calendar), timeZone=\(timeZone), _date=\(date)")
                 _Components = DateTime.calendar.dateComponents(in: timeZone, from: _date as Date)
+                }
             }
             return _Components!
         }
@@ -340,12 +342,16 @@ public extension DateTime {
         if year == nil || month == nil {
             return nil
         }
-        var comp = DateComponents()
-        comp.year = Math.MoveToRange(x: year!, min: 1, max: 9999)!
-        comp.month = Math.MoveToRange(x: month!, min: 0, max: 12)!
-        let nsdate = calendar.date(from: comp)
-        let days = calendar.range(of: .day, in: .month, for: nsdate!)
-        return days?.count
+        var count: Int?
+        autoreleasepool {
+            var comp = DateComponents()
+            comp.year = Math.MoveToRange(x: year!, min: 1, max: 9999)!
+            comp.month = Math.MoveToRange(x: month!, min: 0, max: 12)!
+            let nsdate = calendar.date(from: comp)
+            let days = calendar.range(of: .day, in: .month, for: nsdate!)
+            count = days?.count
+        }
+        return count
     }
 
     internal func withNewDate(_ date : Date) -> DateTime
@@ -685,20 +691,26 @@ private extension DateTime {
     }
     
     private func addComponents(components: DateComponents) -> NSDate? {
-        return DateTime.calendar.date(byAdding: components, to: _date as Date) as NSDate?
+        autoreleasepool {
+            return DateTime.calendar.date(byAdding: components, to: _date as Date) as NSDate?
+        }
     }
 
     /// Retun timeZone sensitive components
     private var components: DateComponents {
-        return DateTime.calendar.dateComponents(DateTime.componentFlags(), from: _date as Date)
+        autoreleasepool {
+            return DateTime.calendar.dateComponents(DateTime.componentFlags(), from: _date as Date)
+        }
     }
 
     /// Return the NSDateComponents
     private var componentsWithTimeZone: DateComponents {
-        let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-        var component = DateTime.calendar.dateComponents(DateTime.componentFlags(), from: _date as Date)
-        component.timeZone = timeZone
-        return component
+        autoreleasepool {
+            let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
+            var component = DateTime.calendar.dateComponents(DateTime.componentFlags(), from: _date as Date)
+            component.timeZone = timeZone
+            return component
+        }
     }
 
     /**
@@ -770,10 +782,14 @@ internal extension NSDateComponents {
         self.weekdayOrdinal = NSDateComponentUndefined
 
         // Set calendar time zone to desired time zone
-        var calendar = Calendar.current
-        calendar.timeZone = self.timeZone!
+        var date: Date? = nil
+        autoreleasepool {
+            var calendar = Calendar.current
+            calendar.timeZone = self.timeZone!
 
-        return calendar.date(from: self as DateComponents)
+            date = calendar.date(from: self as DateComponents)
+        }
+        return date
     }
 }
 
