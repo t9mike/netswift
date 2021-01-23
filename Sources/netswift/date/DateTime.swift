@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import AnyDate
 
 //MARK: INITIALISERS AND PRIVATE MEMBERS
 
@@ -23,6 +24,16 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
     /// The timezone based on Kind: UTC or user's current timezone
     public private(set) var Timezone : TimeZone
 
+    private var _anyDate: AnyDate.LocalDateTime? = nil
+    
+    private var anyDate: AnyDate.LocalDateTime {
+        if (_anyDate == nil) {
+            let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
+            _anyDate = AnyDate.LocalDateTime(_date as Date, timeZone: timeZone)
+        }
+        return _anyDate!
+    }
+    
     private var Components: DateComponents {
         get {
             if (_Components == nil) {
@@ -165,11 +176,11 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
 public extension DateTime {
     /// Get the year component of the date
     var Year: Int {
-            return Components.year!
+        return anyDate.year
     }
     /// Get the month component of the date
     var Month: Int {
-            return Components.month!
+        return anyDate.month
         }
     /// Get the week of the month component of the date
     var WeekOfMonth: Int {
@@ -191,24 +202,24 @@ public extension DateTime {
     }
     /// Get the day component of the date
     var Day: Int {
-            return Components.day!
+            return anyDate.day
         }
     /// Get the hour component of the date
     var Hour: Int {
-            return Components.hour!
+            return anyDate.hour
         }
     /// Get the minute component of the date
     var Minute: Int {
-            return Components.minute!
+            return anyDate.minute
         }
     /// Get the second component of the date
     var Second: Int {
-            return Components.second!
+            return anyDate.second
         }
     /// Get the millisecond component of the Date
     var Millisecond: Int {
-            return Components.nanosecond! / DateTime.NANOSECONDS_IN_MILLISECOND
-        }
+        return anyDate.nano / DateTime.NANOSECONDS_IN_MILLISECOND
+    }
     /// Get the era component of the date
     var Era: Int {
             return Components.era!
