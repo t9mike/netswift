@@ -10,7 +10,9 @@ import Foundation
 
 public struct TimeSpan : CustomStringConvertible
 {
+    /// Seconds
     public private(set) var Interval : TimeInterval = 0
+    
     private var _days: Int = 0
     private var _hours: Int = 0
     private var _minutes: Int = 0
