@@ -70,9 +70,13 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
 
     public init(year: Int = 2001, month: Int = 1, day: Int = 1, hour: Int = 0, minute: Int = 0, second: Int = 0, millisecond: Int = 0, kind: DateTimeKind = .Local, weekStarts: DayOfWeeks = .Sunday) {
         _weekStarts  = weekStarts
+        
         let yearRanged = Math.MoveToRange(x: year, min: -9999, max: 9999)!
         let monthRanged = Math.MoveToRange(x: month, min: 1, max: 12)!
-        let dayRanged = Math.MoveToRange(x: day, min: 1, max: DateTime.DaysInMonth(year: yearRanged, month: monthRanged)!)
+        
+        // This is very expensive due to DateTime.DaysInMonth(): assume good input
+//        let dayRanged = Math.MoveToRange(x: day, min: 1, max: DateTime.DaysInMonth(year: yearRanged, month: monthRanged)!)
+        
         let nanosecond = (millisecond * DateTime.NANOSECONDS_IN_MILLISECOND)
         
         Timezone = DateTime.dateTimeKindToTimeZone(kind)
@@ -80,7 +84,7 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
         _date = components.nSDateFromComponents(
             year: yearRanged,
             month: monthRanged,
-            day: dayRanged,
+            day: day,
             hour: Math.MoveToRange(x: hour, min: 0, max: 23),
             minute: Math.MoveToRange(x: minute, min: 0, max: 59),
             second: Math.MoveToRange(x: second, min: 0, max: 59),
