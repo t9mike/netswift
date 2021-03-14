@@ -785,10 +785,12 @@ internal extension NSDateComponents {
         self.weekdayOrdinal = NSDateComponentUndefined
 
         // Set calendar time zone to desired time zone
-        var calendar = Calendar.current
-        calendar.timeZone = self.timeZone!
+        return autoreleasepool {
+            var calendar = Calendar.current
+            calendar.timeZone = self.timeZone!
 
-        return calendar.date(from: self as DateComponents)
+            return calendar.date(from: self as DateComponents)
+        }
     }
 }
 
