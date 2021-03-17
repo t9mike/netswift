@@ -24,15 +24,15 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
     /// The timezone based on Kind: UTC or user's current timezone
     public private(set) var Timezone : TimeZone
 
-    private var _anyDate: AnyDate.LocalDateTime? = nil
-    
-    private var anyDate: AnyDate.LocalDateTime {
-        if (_anyDate == nil) {
-            let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-            _anyDate = AnyDate.LocalDateTime(_date as Date, timeZone: timeZone)
-        }
-        return _anyDate!
-    }
+//    private var _anyDate: AnyDate.LocalDateTime? = nil
+//
+//    private var anyDate: AnyDate.LocalDateTime {
+//        if (_anyDate == nil) {
+//            let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
+//            _anyDate = AnyDate.LocalDateTime(_date as Date, timeZone: timeZone)
+//        }
+//        return _anyDate!
+//    }
     
     private var Components: DateComponents {
         get {
@@ -180,23 +180,23 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
 public extension DateTime {
     /// Get the year component of the date
     var Year: Int {
-        return anyDate.year
+        return Components.year ?? 0
     }
     /// Get the month component of the date
     var Month: Int {
-        return anyDate.month
+        return Components.month ?? 0
         }
     /// Get the week of the month component of the date
     var WeekOfMonth: Int {
-            return Components.weekOfMonth!
+            return Components.weekOfMonth ?? 0
         }
     /// Get the week of the month component of the date
     var WeekOfYear: Int {
-            return Components.weekOfYear!
+            return Components.weekOfYear ?? 0
         }
     /// Get the weekday component of the date
     var Weekday: Int {
-            let computedDaysFromWeekStart = (Components.weekday! + 1 - self._weekStarts.rawValue) % 7
+            let computedDaysFromWeekStart = (Components.weekday ?? 0 + 1 - self._weekStarts.rawValue) % 7
             return computedDaysFromWeekStart == 0 ? 7 : computedDaysFromWeekStart
         }
 
@@ -206,27 +206,27 @@ public extension DateTime {
     }
     /// Get the day component of the date
     var Day: Int {
-            return anyDate.day
+            return Components.day ?? 0
         }
     /// Get the hour component of the date
     var Hour: Int {
-            return anyDate.hour
+            return Components.hour ?? 0
         }
     /// Get the minute component of the date
     var Minute: Int {
-            return anyDate.minute
+            return Components.minute ?? 0
         }
     /// Get the second component of the date
     var Second: Int {
-            return anyDate.second
+            return Components.second ?? 0
         }
     /// Get the millisecond component of the Date
     var Millisecond: Int {
-        return anyDate.nano / DateTime.NANOSECONDS_IN_MILLISECOND
+        return Components.nanosecond  ?? 0 / DateTime.NANOSECONDS_IN_MILLISECOND
     }
     /// Get the era component of the date
     var Era: Int {
-            return Components.era!
+        return Components.era ?? 0
         }
     /// Get the current month name based upon current locale
     var MonthName: String {
@@ -752,9 +752,11 @@ private extension DateTime {
 //        }
 //    }
 
+    private static let utcTZ = TimeZone(abbreviation: "UTC")!
+    
     private static func dateTimeKindToTimeZone(_ kind: DateTimeKind) -> TimeZone {
         if kind == .Utc {
-            return TimeZone(abbreviation: "UTC")!
+            return utcTZ
         }
         return TimeZone.current
     }
