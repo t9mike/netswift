@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import AnyDate
 
 //MARK: INITIALISERS AND PRIVATE MEMBERS
 
@@ -23,16 +22,6 @@ public class DateTime : Codable,Hashable,CustomStringConvertible,CustomDebugStri
         
     /// The timezone based on Kind: UTC or user's current timezone
     public private(set) var Timezone : TimeZone
-
-//    private var _anyDate: AnyDate.LocalDateTime? = nil
-//
-//    private var anyDate: AnyDate.LocalDateTime {
-//        if (_anyDate == nil) {
-//            let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-//            _anyDate = AnyDate.LocalDateTime(_date as Date, timeZone: timeZone)
-//        }
-//        return _anyDate!
-//    }
     
     private var Components: DateComponents {
         get {
