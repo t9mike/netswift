@@ -692,19 +692,6 @@ private extension DateTime {
         return DateTime.calendar.date(byAdding: components, to: _date as Date) as NSDate?
     }
 
-    /// Retun timeZone sensitive components
-    private var components: DateComponents {
-        return DateTime.calendar.dateComponents(DateTime.componentFlags(), from: _date as Date)
-    }
-
-    /// Return the NSDateComponents
-    private var componentsWithTimeZone: DateComponents {
-        let timeZone = DateTime.dateTimeKindToTimeZone(_kind)
-        var component = DateTime.calendar.dateComponents(DateTime.componentFlags(), from: _date as Date)
-        component.timeZone = timeZone
-        return component
-    }
-
     /**
      This function uses NSThread dictionary to store and retrive a thread-local object, creating it if it has not already been created
      
