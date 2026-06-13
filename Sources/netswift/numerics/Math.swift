@@ -15,7 +15,7 @@ public enum MidpointRounding {
 }
 
 // https://stackoverflow.com/a/61201420/420175
-func %<N: BinaryFloatingPoint>(lhs: N, rhs: N) -> N {
+public func %<N: BinaryFloatingPoint>(lhs: N, rhs: N) -> N {
     lhs.truncatingRemainder(dividingBy: rhs)
 }
 
