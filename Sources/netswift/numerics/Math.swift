@@ -67,18 +67,13 @@ public class Math {
                             _ digits: Int,
                             _ midpointRounding: MidpointRounding = .ToEven) -> Double {
         let multiplier = Math.decimalPlaces(digits)
-        var result: Int
+        let scaledValue = value * multiplier
+
         switch (midpointRounding) {
         case .ToEven:
-            let sign = (value < 0) ? -1 : 1
-            if (trunc(value) % 2 == 0) {
-                result = Int(abs(value * multiplier) - 0.5) * sign
-            } else {
-                result = Int(abs(value * multiplier) + 0.5) * sign
-            }
-            return Double(result) / multiplier
+            return scaledValue.rounded(.toNearestOrEven) / multiplier
         case .AwayFromZero:
-            return round(multiplier * value) / multiplier
+            return scaledValue.rounded(.toNearestOrAwayFromZero) / multiplier
         }
     }
 
